@@ -1,0 +1,11 @@
+c:\Projects\DocumentManagementML\src\DocumentManagementML.Shared\bin\Debug\net9.0\DocumentManagementML.Shared.deps.json
+c:\Projects\DocumentManagementML\src\DocumentManagementML.Shared\bin\Debug\net9.0\DocumentManagementML.Shared.dll
+c:\Projects\DocumentManagementML\src\DocumentManagementML.Shared\bin\Debug\net9.0\DocumentManagementML.Shared.pdb
+c:\Projects\DocumentManagementML\src\DocumentManagementML.Shared\obj\Debug\net9.0\DocumentManagementML.Shared.GeneratedMSBuildEditorConfig.editorconfig
+c:\Projects\DocumentManagementML\src\DocumentManagementML.Shared\obj\Debug\net9.0\DocumentManagementML.Shared.AssemblyInfoInputs.cache
+c:\Projects\DocumentManagementML\src\DocumentManagementML.Shared\obj\Debug\net9.0\DocumentManagementML.Shared.AssemblyInfo.cs
+c:\Projects\DocumentManagementML\src\DocumentManagementML.Shared\obj\Debug\net9.0\DocumentManagementML.Shared.csproj.CoreCompileInputs.cache
+c:\Projects\DocumentManagementML\src\DocumentManagementML.Shared\obj\Debug\net9.0\DocumentManagementML.Shared.dll
+c:\Projects\DocumentManagementML\src\DocumentManagementML.Shared\obj\Debug\net9.0\refint\DocumentManagementML.Shared.dll
+c:\Projects\DocumentManagementML\src\DocumentManagementML.Shared\obj\Debug\net9.0\DocumentManagementML.Shared.pdb
+c:\Projects\DocumentManagementML\src\DocumentManagementML.Shared\obj\Debug\net9.0\ref\DocumentManagementML.Shared.dll

@@ -1,0 +1,68 @@
+digraph G {
+    compound=true;
+    node [shape=box, style=filled, fillcolor=lightgray];
+    rankdir="LR";
+
+    subgraph cluster_input {
+        label="Document Input";
+        style=filled;
+        color=lightblue;
+        node [style=filled, fillcolor=white];
+        Upload [label="Document Upload"];
+        Validation [label="File Validation"];
+        TextExtraction [label="Text Extraction"];
+    }
+
+    subgraph cluster_processing {
+        label="ML Processing";
+        style=filled;
+        color=lightgreen;
+        node [style=filled, fillcolor=white];
+        FeatureExtraction [label="Feature Extraction"];
+        ModelSelection [label="Model Selection"];
+        Prediction [label="Prediction Engine"];
+    }
+
+    subgraph cluster_model_mgmt {
+        label="Model Management";
+        style=filled;
+        color=lightyellow;
+        node [style=filled, fillcolor=white];
+        Training [label="Model Training"];
+        Evaluation [label="Model Evaluation"];
+        Versioning [label="Model Versioning"];
+        Registry [label="Model Registry"];
+    }
+
+    subgraph cluster_output {
+        label="Classification Output";
+        style=filled;
+        color=lightpink;
+        node [style=filled, fillcolor=white];
+        Results [label="Classification Results"];
+        Confidence [label="Confidence Scoring"];
+        Metadata [label="Metadata Update"];
+    }
+
+    # Main Pipeline Flow
+    Upload -> Validation;
+    Validation -> TextExtraction;
+    TextExtraction -> FeatureExtraction;
+    FeatureExtraction -> ModelSelection;
+    ModelSelection -> Prediction;
+    Prediction -> Results;
+    Results -> Confidence;
+    Confidence -> Metadata;
+
+    # Model Management Flow
+    Registry -> ModelSelection;
+    Training -> Evaluation;
+    Evaluation -> Versioning;
+    Versioning -> Registry;
+
+    # Rank settings to ensure proper flow
+    { rank=same; Upload Validation TextExtraction }
+    { rank=same; FeatureExtraction ModelSelection Prediction }
+    { rank=same; Results Confidence Metadata }
+    { rank=same; Training Evaluation Versioning Registry }
+}

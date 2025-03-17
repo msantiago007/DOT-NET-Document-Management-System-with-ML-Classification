@@ -1,0 +1,86 @@
+digraph G {
+    compound=true;
+    node [shape=box, style=filled, fillcolor=lightgray];
+    rankdir="TB";
+
+    subgraph cluster_frontend {
+        label="Frontend Layer";
+        style=filled;
+        color=lightblue;
+        node [style=filled, fillcolor=white];
+        UI [label="Web Interface"];
+        Blazor [label="Blazor WASM"];
+        Components [label="UI Components"];
+    }
+
+    subgraph cluster_api {
+        label="API Layer";
+        style=filled;
+        color=lightgreen;
+        node [style=filled, fillcolor=white];
+        Controllers [label="API Controllers"];
+        Middleware [label="API Middleware"];
+        Validation [label="Request Validation"];
+    }
+
+    subgraph cluster_application {
+        label="Application Layer";
+        style=filled;
+        color=lightyellow;
+        node [style=filled, fillcolor=white];
+        Services [label="Application Services"];
+        DTOs [label="Data Transfer Objects"];
+        Interfaces [label="Service Interfaces"];
+    }
+
+    subgraph cluster_domain {
+        label="Domain Layer";
+        style=filled;
+        color=lightpink;
+        node [style=filled, fillcolor=white];
+        Entities [label="Domain Entities"];
+        ValueObjects [label="Value Objects"];
+        DomainServices [label="Domain Services"];
+    }
+
+    subgraph cluster_infrastructure {
+        label="Infrastructure Layer";
+        style=filled;
+        color=lightgrey;
+        node [style=filled, fillcolor=white];
+        Repos [label="Repositories"];
+        DbContext [label="EF Core Context"];
+        FileSystem [label="File System Service"];
+        ML [label="ML.NET Services"];
+    }
+
+    subgraph cluster_storage {
+        label="Storage Layer";
+        style=filled;
+        color=lightcyan;
+        node [style=filled, fillcolor=white];
+        SQL [label="SQL Server", shape=cylinder];
+        MinIO [label="MinIO Storage", shape=cylinder];
+        Redis [label="Redis Cache", shape=cylinder];
+    }
+
+    # Connections
+    UI -> Blazor;
+    Blazor -> Components;
+    Blazor -> Controllers;
+    Controllers -> Middleware;
+    Middleware -> Validation;
+    Controllers -> Services;
+    Services -> DTOs;
+    Services -> Interfaces;
+    Services -> DomainServices;
+    DomainServices -> Entities;
+    DomainServices -> ValueObjects;
+    Services -> Repos;
+    Repos -> DbContext;
+    DbContext -> SQL;
+    Services -> FileSystem;
+    FileSystem -> MinIO;
+    Services -> ML;
+    Services -> Redis;
+}

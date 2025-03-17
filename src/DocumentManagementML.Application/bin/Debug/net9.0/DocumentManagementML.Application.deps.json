@@ -1,0 +1,39 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v9.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v9.0": {
+      "DocumentManagementML.Application/1.0.0": {
+        "dependencies": {
+          "DocumentManagementML.Domain": "1.0.0"
+        },
+        "runtime": {
+          "DocumentManagementML.Application.dll": {}
+        }
+      },
+      "DocumentManagementML.Domain/1.0.0": {
+        "runtime": {
+          "DocumentManagementML.Domain.dll": {
+            "assemblyVersion": "1.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      }
+    }
+  },
+  "libraries": {
+    "DocumentManagementML.Application/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "DocumentManagementML.Domain/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}
