@@ -27,6 +27,37 @@ namespace DocumentManagementML.Infrastructure.Repositories
         }
 
         /// <summary>
+        /// Gets all document types with pagination
+        /// </summary>
+        /// <param name="skip">Number of document types to skip</param>
+        /// <param name="take">Number of document types to take</param>
+        /// <returns>Paged collection of document types</returns>
+        public async Task<IEnumerable<DocumentType>> GetAllDocumentTypesAsync(int skip, int take)
+        {
+            return await _dbContext.DocumentTypes
+                .OrderBy(dt => dt.TypeName)
+                .Skip(skip)
+                .Take(take)
+                .ToListAsync();
+        }
+
+        /// <summary>
+        /// Gets all active document types with pagination
+        /// </summary>
+        /// <param name="skip">Number of document types to skip</param>
+        /// <param name="take">Number of document types to take</param>
+        /// <returns>Paged collection of active document types</returns>
+        public async Task<IEnumerable<DocumentType>> GetActiveDocumentTypesAsync(int skip, int take)
+        {
+            return await _dbContext.DocumentTypes
+                .Where(dt => dt.IsActive)
+                .OrderBy(dt => dt.TypeName)
+                .Skip(skip)
+                .Take(take)
+                .ToListAsync();
+        }
+
+        /// <summary>
         /// Gets all active document types
         /// </summary>
         /// <returns>Collection of active document types</returns>
@@ -36,6 +67,33 @@ namespace DocumentManagementML.Infrastructure.Repositories
                 .Where(dt => dt.IsActive)
                 .OrderBy(dt => dt.TypeName)
                 .ToListAsync();
+        }
+
+        /// <summary>
+        /// Gets a document type by its name
+        /// </summary>
+        /// <param name="name">Document type name</param>
+        /// <returns>Document type if found, null otherwise</returns>
+        public async Task<DocumentType?> GetByNameAsync(string name)
+        {
+            return await _dbSet.FirstOrDefaultAsync(dt => dt.TypeName == name);
+        }
+
+        /// <summary>
+        /// Gets the total count of document types
+        /// </summary>
+        /// <param name="activeOnly">If true, count only active document types</param>
+        /// <returns>Total count of document types</returns>
+        public async Task<int> GetDocumentTypeCountAsync(bool activeOnly = false)
+        {
+            var query = _dbContext.DocumentTypes.AsQueryable();
+            
+            if (activeOnly)
+            {
+                query = query.Where(dt => dt.IsActive);
+            }
+            
+            return await query.CountAsync();
         }
 
         /// <summary>
@@ -63,21 +121,6 @@ namespace DocumentManagementML.Infrastructure.Repositories
                 .Include(dt => dt.Documents.Where(d => !d.IsDeleted))
                 .Where(dt => dt.DocumentTypeId == id && dt.IsActive)
                 .FirstOrDefaultAsync();
-        }
-
-        public async Task<DocumentType?> GetByNameAsync(string name)
-        {
-            return await _dbSet.FirstOrDefaultAsync(dt => dt.TypeName == name);
-        }
-
-        public async Task<IEnumerable<DocumentType>> GetActiveDocumentTypesAsync(int skip, int take)
-        {
-            return await _dbSet
-                .Where(dt => dt.IsActive)
-                .OrderBy(dt => dt.TypeName)
-                .Skip(skip)
-                .Take(take)
-                .ToListAsync();
         }
     }
 }
