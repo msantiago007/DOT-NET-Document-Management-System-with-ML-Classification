@@ -35,6 +35,7 @@ namespace DocumentManagementML.Infrastructure.Repositories
         {
             return await _dbContext.Documents
                 .Where(d => d.DocumentTypeId == typeId && !d.IsDeleted)
+                .OrderByDescending(d => d.CreatedDate)
                 .ToListAsync();
         }
 
@@ -97,6 +98,7 @@ namespace DocumentManagementML.Infrastructure.Repositories
         {
             return await _dbContext.Documents
                 .Where(d => d.DocumentTypeId == documentTypeId && !d.IsDeleted)
+                .OrderByDescending(d => d.CreatedDate)
                 .ToListAsync();
         }
 
@@ -104,10 +106,11 @@ namespace DocumentManagementML.Infrastructure.Repositories
         {
             return await _dbContext.Documents
                 .Where(d => d.UploadedById == userId && !d.IsDeleted)
+                .OrderByDescending(d => d.CreatedDate)
                 .ToListAsync();
         }
 
-        public async Task<IEnumerable<Document>> SearchAsync(string searchTerm, Guid? documentTypeId = null)
+        public async Task<IEnumerable<Document>> SearchAsync(string searchTerm, Guid? documentTypeId = null, int skip = 0, int take = 100)
         {
             var query = _dbContext.Documents.Where(d => !d.IsDeleted);
 
@@ -123,7 +126,11 @@ namespace DocumentManagementML.Infrastructure.Repositories
                 query = query.Where(d => d.DocumentTypeId == documentTypeId.Value);
             }
 
-            return await query.ToListAsync();
+            return await query
+                .OrderByDescending(d => d.CreatedDate)
+                .Skip(skip)
+                .Take(take)
+                .ToListAsync();
         }
 
         public async Task<IEnumerable<Document>> GetRecentDocumentsAsync(int count)
@@ -133,6 +140,37 @@ namespace DocumentManagementML.Infrastructure.Repositories
                 .OrderByDescending(d => d.CreatedDate)
                 .Take(count)
                 .ToListAsync();
+        }
+        
+        public async Task<int> GetDocumentCountAsync(Guid? documentTypeId = null)
+        {
+            var query = _dbContext.Documents.Where(d => !d.IsDeleted);
+            
+            if (documentTypeId.HasValue)
+            {
+                query = query.Where(d => d.DocumentTypeId == documentTypeId.Value);
+            }
+            
+            return await query.CountAsync();
+        }
+
+        public async Task<int> GetSearchResultCountAsync(string searchTerm, Guid? documentTypeId = null)
+        {
+            var query = _dbContext.Documents.Where(d => !d.IsDeleted);
+
+            if (!string.IsNullOrEmpty(searchTerm))
+            {
+                query = query.Where(d => 
+                    d.DocumentName.Contains(searchTerm) || 
+                    (d.Description != null && d.Description.Contains(searchTerm)));
+            }
+
+            if (documentTypeId.HasValue)
+            {
+                query = query.Where(d => d.DocumentTypeId == documentTypeId.Value);
+            }
+            
+            return await query.CountAsync();
         }
     }
 }
