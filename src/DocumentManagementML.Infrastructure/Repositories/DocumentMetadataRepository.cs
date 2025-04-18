@@ -1,4 +1,4 @@
-// DocumentMetadataRepository.cs
+// DocumentRepository.cs
 using DocumentManagementML.Domain.Entities;
 using DocumentManagementML.Domain.Repositories;
 using DocumentManagementML.Infrastructure.Data;
@@ -11,92 +11,163 @@ using System.Threading.Tasks;
 namespace DocumentManagementML.Infrastructure.Repositories
 {
     /// <summary>
-    /// Repository implementation for DocumentMetadata entity
+    /// Repository implementation for Document entity
     /// </summary>
-    public class DocumentMetadataRepository : BaseRepository<DocumentMetadata>, IDocumentMetadataRepository
+    public class DocumentRepository : BaseRepository<Document>, IDocumentRepository
     {
         private new readonly DocumentManagementDbContext _dbContext;
 
         /// <summary>
-        /// Initializes a new instance of the DocumentMetadataRepository class
+        /// Initializes a new instance of the DocumentRepository class
         /// </summary>
         /// <param name="context">Database context</param>
-        public DocumentMetadataRepository(DocumentManagementDbContext context) : base(context)
+        public DocumentRepository(DocumentManagementDbContext context) : base(context)
         {
             _dbContext = context;
         }
 
         /// <summary>
-        /// Gets metadata for a document
+        /// Gets documents by document type
         /// </summary>
-        /// <param name="documentId">Document identifier</param>
-        /// <returns>Collection of metadata entries</returns>
-        public async Task<IEnumerable<DocumentMetadata>> GetByDocumentIdAsync(Guid documentId)
+        /// <param name="typeId">Document type identifier</param>
+        /// <returns>Collection of documents</returns>
+        public async Task<IEnumerable<Document>> GetByTypeIdAsync(Guid typeId)
         {
-            return await _dbContext.DocumentMetadata
-                .Where(dm => dm.DocumentId == documentId)
+            return await _dbContext.Documents
+                .Where(d => d.DocumentTypeId == typeId && !d.IsDeleted)
                 .ToListAsync();
         }
 
         /// <summary>
-        /// Gets a metadata entry by document and key
+        /// Gets active (non-deleted) documents with pagination
         /// </summary>
-        /// <param name="key">Metadata key</param>
-        /// <returns>Metadata entry if found, null otherwise</returns>
-        public async Task<IEnumerable<DocumentMetadata>> GetByKeyAsync(string key)
+        /// <param name="skip">Number of documents to skip</param>
+        /// <param name="take">Number of documents to take</param>
+        /// <returns>Paged collection of active documents</returns>
+        public async Task<IEnumerable<Document>> GetActiveDocumentsAsync(int skip, int take)
         {
-            return await _dbContext.DocumentMetadata
-                .Where(dm => dm.MetadataKey == key)
+            return await _dbContext.Documents
+                .Where(d => !d.IsDeleted)
+                .OrderByDescending(d => d.CreatedDate)
+                .Skip(skip)
+                .Take(take)
                 .ToListAsync();
         }
 
         /// <summary>
-        /// Updates an existing metadata entry or creates a new one if it doesn't exist
+        /// Gets a document with its metadata
         /// </summary>
-        /// <param name="metadata">Metadata entry</param>
-        /// <returns>Updated or created metadata entry</returns>
-        public async Task<DocumentMetadata> UpsertAsync(DocumentMetadata metadata)
+        /// <param name="id">Document identifier</param>
+        /// <returns>Document with metadata if found, null otherwise</returns>
+        public async Task<Document?> GetWithMetadataAsync(Guid id)
         {
-            var existing = await _dbSet
-                .Where(dm => dm.DocumentId == metadata.DocumentId && dm.MetadataKey == metadata.MetadataKey)
-                .FirstOrDefaultAsync();
+            return await _dbContext.Documents
+                .Include(d => d.MetadataItems)
+                .FirstOrDefaultAsync(d => d.DocumentId == id && !d.IsDeleted);
+        }
 
-            if (existing != null)
+        /// <summary>
+        /// Gets a document with its version history
+        /// </summary>
+        /// <param name="id">Document identifier</param>
+        /// <returns>Document with versions if found, null otherwise</returns>
+        public async Task<Document?> GetWithVersionsAsync(Guid id)
+        {
+            return await _dbContext.Documents
+                .Include(d => d.Versions)
+                .FirstOrDefaultAsync(d => d.DocumentId == id && !d.IsDeleted);
+        }
+
+        /// <summary>
+        /// Soft deletes a document
+        /// </summary>
+        /// <param name="id">Document identifier</param>
+        public async Task SoftDeleteAsync(Guid id)
+        {
+            var document = await _dbContext.Documents.FindAsync(id);
+            if (document != null)
             {
-                // Update existing metadata
-                existing.MetadataValue = metadata.MetadataValue;
-                existing.DataType = metadata.DataType;
-                existing.LastModifiedDate = DateTime.UtcNow;
-                
-                await UpdateAsync(existing);
-                return existing;
-            }
-            else
-            {
-                // Create new metadata
-                metadata.CreatedDate = DateTime.UtcNow;
-                metadata.LastModifiedDate = DateTime.UtcNow;
-                
-                await AddAsync(metadata);
-                return metadata;
+                document.IsDeleted = true;
+                document.LastModifiedDate = DateTime.UtcNow;
+                await _dbContext.SaveChangesAsync();
             }
         }
 
-        public async Task<IEnumerable<DocumentMetadata>> SearchByValueAsync(string searchTerm)
+        public async Task<IEnumerable<Document>> GetByDocumentTypeAsync(Guid documentTypeId)
         {
-            return await _dbSet
-                .Where(dm => dm.MetadataValue.Contains(searchTerm))
+            return await _dbContext.Documents
+                .Where(d => d.DocumentTypeId == documentTypeId && !d.IsDeleted)
                 .ToListAsync();
         }
 
-        public async Task DeleteByDocumentIdAsync(Guid documentId)
+        public async Task<IEnumerable<Document>> GetByUploadedByAsync(Guid userId)
         {
-            var metadataItems = await _dbSet
-                .Where(dm => dm.DocumentId == documentId)
+            return await _dbContext.Documents
+                .Where(d => d.UploadedById == userId && !d.IsDeleted)
                 .ToListAsync();
+        }
 
-            _dbSet.RemoveRange(metadataItems);
-            await _dbContext.SaveChangesAsync();
+        public async Task<IEnumerable<Document>> SearchAsync(string searchTerm, Guid? documentTypeId = null, int skip = 0, int take = 100)
+        {
+            var query = _dbContext.Documents.Where(d => !d.IsDeleted);
+
+            if (!string.IsNullOrEmpty(searchTerm))
+            {
+                query = query.Where(d => 
+                    d.DocumentName.Contains(searchTerm) || 
+                    (d.Description != null && d.Description.Contains(searchTerm)));
+            }
+
+            if (documentTypeId.HasValue)
+            {
+                query = query.Where(d => d.DocumentTypeId == documentTypeId.Value);
+            }
+
+            return await query
+                .OrderByDescending(d => d.CreatedDate)
+                .Skip(skip)
+                .Take(take)
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<Document>> GetRecentDocumentsAsync(int count)
+        {
+            return await _dbContext.Documents
+                .Where(d => !d.IsDeleted)
+                .OrderByDescending(d => d.CreatedDate)
+                .Take(count)
+                .ToListAsync();
+        }
+        
+        public async Task<int> GetDocumentCountAsync(Guid? documentTypeId = null)
+        {
+            var query = _dbContext.Documents.Where(d => !d.IsDeleted);
+            
+            if (documentTypeId.HasValue)
+            {
+                query = query.Where(d => d.DocumentTypeId == documentTypeId.Value);
+            }
+            
+            return await query.CountAsync();
+        }
+
+        public async Task<int> GetSearchResultCountAsync(string searchTerm, Guid? documentTypeId = null)
+        {
+            var query = _dbContext.Documents.Where(d => !d.IsDeleted);
+
+            if (!string.IsNullOrEmpty(searchTerm))
+            {
+                query = query.Where(d => 
+                    d.DocumentName.Contains(searchTerm) || 
+                    (d.Description != null && d.Description.Contains(searchTerm)));
+            }
+
+            if (documentTypeId.HasValue)
+            {
+                query = query.Where(d => d.DocumentTypeId == documentTypeId.Value);
+            }
+            
+            return await query.CountAsync();
         }
     }
 }

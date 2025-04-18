@@ -65,8 +65,10 @@ namespace DocumentManagementML.Domain.Repositories
         /// </summary>
         /// <param name="searchTerm">Search term</param>
         /// <param name="documentTypeId">Optional document type identifier</param>
+        /// <param name="skip">Number of documents to skip</param>
+        /// <param name="take">Maximum number of documents to take</param>
         /// <returns>Collection of documents</returns>
-        Task<IEnumerable<Document>> SearchAsync(string searchTerm, Guid? documentTypeId = null);
+        Task<IEnumerable<Document>> SearchAsync(string searchTerm, Guid? documentTypeId = null, int skip = 0, int take = 100);
         
         /// <summary>
         /// Gets the most recent documents
@@ -74,5 +76,20 @@ namespace DocumentManagementML.Domain.Repositories
         /// <param name="count">Number of documents to return</param>
         /// <returns>Collection of documents</returns>
         Task<IEnumerable<Document>> GetRecentDocumentsAsync(int count);
+
+        /// <summary>
+        /// Gets the total count of active documents, optionally filtered by document type
+        /// </summary>
+        /// <param name="documentTypeId">Optional document type identifier</param>
+        /// <returns>Total count of documents</returns>
+        Task<int> GetDocumentCountAsync(Guid? documentTypeId = null);
+
+        /// <summary>
+        /// Gets the total count of search results
+        /// </summary>
+        /// <param name="searchTerm">Search term</param>
+        /// <param name="documentTypeId">Optional document type identifier</param>
+        /// <returns>Total count of search results</returns>
+        Task<int> GetSearchResultCountAsync(string searchTerm, Guid? documentTypeId = null);
     }
 }
