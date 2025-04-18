@@ -16,7 +16,7 @@ namespace DocumentManagementML.Domain.Repositories
         /// </summary>
         /// <param name="typeId">Document type identifier</param>
         /// <returns>Collection of documents</returns>
-        Task<IEnumerable<Document>> GetByTypeIdAsync(int typeId);
+        Task<IEnumerable<Document>> GetByTypeIdAsync(Guid typeId);
         
         /// <summary>
         /// Gets active (non-deleted) documents with pagination

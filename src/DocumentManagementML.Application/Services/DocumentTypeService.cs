@@ -154,7 +154,7 @@ namespace DocumentManagementML.Application.Services
             }
         }
 
-        // Additional methods to implement the interface
+        // Updated to use Guid instead of int
         public async Task<IEnumerable<DocumentTypeDto>> GetDocumentTypesAsync(int skip = 0, int limit = 100)
         {
             try
@@ -171,13 +171,20 @@ namespace DocumentManagementML.Application.Services
             }
         }
 
-        public async Task DeactivateDocumentTypeAsync(int id)
+        // Updated to use Guid instead of int
+        public async Task DeactivateDocumentTypeAsync(Guid id)
         {
-            try
+            try 
             {
-                // Since we're using Guid in our repository but int in this method,
-                // we need to handle this mismatch. For now, we'll throw an exception.
-                throw new NotImplementedException("Method not implemented due to ID type mismatch");
+                var documentType = await _documentTypeRepository.GetByIdAsync(id);
+                if (documentType == null)
+                {
+                    throw new NotFoundException($"Document type with ID {id} not found");
+                }
+                
+                documentType.IsActive = false;
+                await _documentTypeRepository.UpdateAsync(documentType);
+                _logger.LogInformation("Document type with ID {DocumentTypeId} deactivated", id);
             }
             catch (Exception ex)
             {

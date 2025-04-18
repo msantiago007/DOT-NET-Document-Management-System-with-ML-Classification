@@ -115,9 +115,7 @@ namespace DocumentManagementML.Application.Services
                 // Update properties
                 existingDocument.DocumentName = documentDto.Name;
                 existingDocument.Description = documentDto.Description;
-                existingDocument.DocumentTypeId = documentDto.DocumentTypeId.HasValue 
-                    ? Convert.ToInt32(documentDto.DocumentTypeId.Value.ToString()) 
-                    : null;
+                existingDocument.DocumentTypeId = documentDto.DocumentTypeId;
                 existingDocument.MetadataDictionary = documentDto.Metadata;
                 existingDocument.LastModifiedDate = DateTime.UtcNow;
 
@@ -179,9 +177,10 @@ namespace DocumentManagementML.Application.Services
             return _mapper.Map<IEnumerable<DocumentDto>>(documents);
         }
 
-        public async Task<IEnumerable<DocumentDto>> GetDocumentsByTypeAsync(int typeId, int skip = 0, int limit = 100)
+        // Updated to use Guid instead of int
+        public async Task<IEnumerable<DocumentDto>> GetDocumentsByTypeAsync(Guid typeId, int skip = 0, int limit = 100)
         {
-            var documents = await _documentRepository.GetByTypeIdAsync(typeId);
+            var documents = await _documentRepository.GetByDocumentTypeAsync(typeId);
             return _mapper.Map<IEnumerable<DocumentDto>>(documents)
                 .Skip(skip)
                 .Take(limit);

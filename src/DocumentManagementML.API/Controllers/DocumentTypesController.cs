@@ -29,17 +29,20 @@ namespace DocumentManagementML.API.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"Error retrieving document types: {ex.Message}");
-                return StatusCode(500, "An error occurred while retrieving document types
                 return StatusCode(500, "An error occurred while retrieving document types");
             }
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<DocumentTypeDto>> GetDocumentType(int id)
+        public async Task<ActionResult<DocumentTypeDto>> GetDocumentType(Guid id)
         {
             try
             {
                 var documentType = await _documentTypeService.GetDocumentTypeByIdAsync(id);
+                if (documentType == null)
+                {
+                    return NotFound($"Document type with ID {id} not found");
+                }
                 return Ok(documentType);
             }
             catch (NotFoundException ex)
@@ -62,7 +65,7 @@ namespace DocumentManagementML.API.Controllers
                 
                 return CreatedAtAction(
                     nameof(GetDocumentType),
-                    new { id = documentType.DocumentTypeId },
+                    new { id = documentType.Id },
                     documentType
                 );
             }
@@ -74,11 +77,15 @@ namespace DocumentManagementML.API.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult<DocumentTypeDto>> UpdateDocumentType(int id, DocumentTypeUpdateDto documentTypeDto)
+        public async Task<ActionResult<DocumentTypeDto>> UpdateDocumentType(Guid id, DocumentTypeUpdateDto documentTypeDto)
         {
             try
             {
                 var documentType = await _documentTypeService.UpdateDocumentTypeAsync(id, documentTypeDto);
+                if (documentType == null)
+                {
+                    return NotFound($"Document type with ID {id} not found");
+                }
                 return Ok(documentType);
             }
             catch (NotFoundException ex)
@@ -93,7 +100,7 @@ namespace DocumentManagementML.API.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult> DeactivateDocumentType(int id)
+        public async Task<ActionResult> DeactivateDocumentType(Guid id)
         {
             try
             {

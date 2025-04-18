@@ -31,7 +31,7 @@ namespace DocumentManagementML.Infrastructure.Repositories
         /// </summary>
         /// <param name="typeId">Document type identifier</param>
         /// <returns>Collection of documents</returns>
-        public async Task<IEnumerable<Document>> GetByTypeIdAsync(int typeId)
+        public async Task<IEnumerable<Document>> GetByTypeIdAsync(Guid typeId)
         {
             return await _dbContext.Documents
                 .Where(d => d.DocumentTypeId == typeId && !d.IsDeleted)
@@ -48,7 +48,7 @@ namespace DocumentManagementML.Infrastructure.Repositories
         {
             return await _dbContext.Documents
                 .Where(d => !d.IsDeleted)
-                .OrderByDescending(d => d.UploadDate)
+                .OrderByDescending(d => d.CreatedDate)
                 .Skip(skip)
                 .Take(take)
                 .ToListAsync();
@@ -62,7 +62,7 @@ namespace DocumentManagementML.Infrastructure.Repositories
         public async Task<Document?> GetWithMetadataAsync(Guid id)
         {
             return await _dbContext.Documents
-                .Include(d => d.MetadataDictionary)
+                .Include(d => d.MetadataItems)
                 .FirstOrDefaultAsync(d => d.DocumentId == id && !d.IsDeleted);
         }
 
@@ -73,7 +73,9 @@ namespace DocumentManagementML.Infrastructure.Repositories
         /// <returns>Document with versions if found, null otherwise</returns>
         public async Task<Document?> GetWithVersionsAsync(Guid id)
         {
-            return await _dbSet.FindAsync(id);
+            return await _dbContext.Documents
+                .Include(d => d.Versions)
+                .FirstOrDefaultAsync(d => d.DocumentId == id && !d.IsDeleted);
         }
 
         /// <summary>
@@ -82,37 +84,38 @@ namespace DocumentManagementML.Infrastructure.Repositories
         /// <param name="id">Document identifier</param>
         public async Task SoftDeleteAsync(Guid id)
         {
-            var document = await _dbSet.FindAsync(id);
+            var document = await _dbContext.Documents.FindAsync(id);
             if (document != null)
             {
                 document.IsDeleted = true;
                 document.LastModifiedDate = DateTime.UtcNow;
+                await _dbContext.SaveChangesAsync();
             }
         }
 
         public async Task<IEnumerable<Document>> GetByDocumentTypeAsync(Guid documentTypeId)
         {
-            return await _dbSet
-                .Where(d => d.DocumentTypeId == documentTypeId)
+            return await _dbContext.Documents
+                .Where(d => d.DocumentTypeId == documentTypeId && !d.IsDeleted)
                 .ToListAsync();
         }
 
         public async Task<IEnumerable<Document>> GetByUploadedByAsync(Guid userId)
         {
-            return await _dbSet
-                .Where(d => d.UploadedById == userId)
+            return await _dbContext.Documents
+                .Where(d => d.UploadedById == userId && !d.IsDeleted)
                 .ToListAsync();
         }
 
         public async Task<IEnumerable<Document>> SearchAsync(string searchTerm, Guid? documentTypeId = null)
         {
-            var query = _dbSet.AsQueryable();
+            var query = _dbContext.Documents.Where(d => !d.IsDeleted);
 
             if (!string.IsNullOrEmpty(searchTerm))
             {
                 query = query.Where(d => 
                     d.DocumentName.Contains(searchTerm) || 
-                    d.Description.Contains(searchTerm));
+                    (d.Description != null && d.Description.Contains(searchTerm)));
             }
 
             if (documentTypeId.HasValue)
@@ -127,7 +130,7 @@ namespace DocumentManagementML.Infrastructure.Repositories
         {
             return await _dbContext.Documents
                 .Where(d => !d.IsDeleted)
-                .OrderByDescending(d => d.UploadDate)
+                .OrderByDescending(d => d.CreatedDate)
                 .Take(count)
                 .ToListAsync();
         }
