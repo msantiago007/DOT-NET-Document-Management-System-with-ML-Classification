@@ -15,12 +15,15 @@ namespace DocumentManagementML.Infrastructure.Repositories
     /// </summary>
     public class DocumentMetadataRepository : BaseRepository<DocumentMetadata>, IDocumentMetadataRepository
     {
+        private new readonly DocumentManagementDbContext _dbContext;
+
         /// <summary>
         /// Initializes a new instance of the DocumentMetadataRepository class
         /// </summary>
         /// <param name="context">Database context</param>
         public DocumentMetadataRepository(DocumentManagementDbContext context) : base(context)
         {
+            _dbContext = context;
         }
 
         /// <summary>
@@ -28,25 +31,23 @@ namespace DocumentManagementML.Infrastructure.Repositories
         /// </summary>
         /// <param name="documentId">Document identifier</param>
         /// <returns>Collection of metadata entries</returns>
-        public async Task<IEnumerable<DocumentMetadata>> GetByDocumentIdAsync(int documentId)
+        public async Task<IEnumerable<DocumentMetadata>> GetByDocumentIdAsync(Guid documentId)
         {
-            return await _context.DocumentMetadata
-                .Where(m => m.DocumentId == documentId)
-                .OrderBy(m => m.MetadataKey)
+            return await _dbContext.DocumentMetadata
+                .Where(dm => dm.DocumentId == documentId)
                 .ToListAsync();
         }
 
         /// <summary>
         /// Gets a metadata entry by document and key
         /// </summary>
-        /// <param name="documentId">Document identifier</param>
         /// <param name="key">Metadata key</param>
         /// <returns>Metadata entry if found, null otherwise</returns>
-        public async Task<DocumentMetadata?> GetByKeyAsync(int documentId, string key)
+        public async Task<IEnumerable<DocumentMetadata>> GetByKeyAsync(string key)
         {
-            return await _context.DocumentMetadata
-                .Where(m => m.DocumentId == documentId && m.MetadataKey == key)
-                .FirstOrDefaultAsync();
+            return await _dbContext.DocumentMetadata
+                .Where(dm => dm.MetadataKey == key)
+                .ToListAsync();
         }
 
         /// <summary>
@@ -56,7 +57,9 @@ namespace DocumentManagementML.Infrastructure.Repositories
         /// <returns>Updated or created metadata entry</returns>
         public async Task<DocumentMetadata> UpsertAsync(DocumentMetadata metadata)
         {
-            var existing = await GetByKeyAsync(metadata.DocumentId, metadata.MetadataKey);
+            var existing = await _dbSet
+                .Where(dm => dm.DocumentId == metadata.DocumentId && dm.MetadataKey == metadata.MetadataKey)
+                .FirstOrDefaultAsync();
 
             if (existing != null)
             {
@@ -77,6 +80,23 @@ namespace DocumentManagementML.Infrastructure.Repositories
                 await AddAsync(metadata);
                 return metadata;
             }
+        }
+
+        public async Task<IEnumerable<DocumentMetadata>> SearchByValueAsync(string searchTerm)
+        {
+            return await _dbSet
+                .Where(dm => dm.MetadataValue.Contains(searchTerm))
+                .ToListAsync();
+        }
+
+        public async Task DeleteByDocumentIdAsync(Guid documentId)
+        {
+            var metadataItems = await _dbSet
+                .Where(dm => dm.DocumentId == documentId)
+                .ToListAsync();
+
+            _dbSet.RemoveRange(metadataItems);
+            await _dbContext.SaveChangesAsync();
         }
     }
 }

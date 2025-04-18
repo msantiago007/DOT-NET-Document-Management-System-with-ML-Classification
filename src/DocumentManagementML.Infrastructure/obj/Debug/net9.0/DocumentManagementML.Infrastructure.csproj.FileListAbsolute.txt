@@ -15,3 +15,4 @@ c:\Projects\DocumentManagementML\src\DocumentManagementML.Infrastructure\obj\Deb
 c:\Projects\DocumentManagementML\src\DocumentManagementML.Infrastructure\obj\Debug\net9.0\refint\DocumentManagementML.Infrastructure.dll
 c:\Projects\DocumentManagementML\src\DocumentManagementML.Infrastructure\obj\Debug\net9.0\DocumentManagementML.Infrastructure.pdb
 C:\Projects\DocumentManagementML\src\DocumentManagementML.Infrastructure\obj\Debug\net9.0\ref\DocumentManagementML.Infrastructure.dll
+C:\Projects\DocumentManagementML\src\DocumentManagementML.Infrastructure\obj\Debug\net9.0\DocumentManagementML.Infrastructure.sourcelink.json

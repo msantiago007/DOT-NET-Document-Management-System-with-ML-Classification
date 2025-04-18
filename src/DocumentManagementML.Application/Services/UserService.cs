@@ -8,6 +8,10 @@ using DocumentManagementML.Domain.Repositories;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.IO;
+using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace DocumentManagementML.Application.Services
@@ -46,7 +50,7 @@ namespace DocumentManagementML.Application.Services
         /// </summary>
         /// <param name="id">User identifier</param>
         /// <returns>User DTO</returns>
-        public async Task<UserDto> GetUserByIdAsync(int id)
+        public async Task<UserDto> GetUserByIdAsync(Guid id)
         {
             var user = await _userRepository.GetByIdAsync(id);
             if (user == null || !user.IsActive)
@@ -106,11 +110,10 @@ namespace DocumentManagementML.Application.Services
                     CreatedDate = DateTime.UtcNow
                 };
                 
-                await _userRepository.AddAsync(user);
-                await _userRepository.SaveChangesAsync();
+                var createdUser = await _userRepository.AddAsync(user);
                 
-                _logger.LogInformation($"User created with ID: {user.UserId}");
-                return _mapper.Map<UserDto>(user);
+                _logger.LogInformation($"User created with ID: {createdUser.UserId}");
+                return _mapper.Map<UserDto>(createdUser);
             }
             catch (Exception ex) when (!(ex is ValidationException))
             {
@@ -125,7 +128,7 @@ namespace DocumentManagementML.Application.Services
         /// <param name="id">User identifier</param>
         /// <param name="userDto">User update DTO</param>
         /// <returns>Updated user DTO</returns>
-        public async Task<UserDto> UpdateUserAsync(int id, UserUpdateDto userDto)
+        public async Task<UserDto> UpdateUserAsync(Guid id, UserUpdateDto userDto)
         {
             var user = await _userRepository.GetByIdAsync(id);
             if (user == null || !user.IsActive)
@@ -139,7 +142,7 @@ namespace DocumentManagementML.Application.Services
                 if (!string.IsNullOrEmpty(userDto.Username) && userDto.Username != user.Username)
                 {
                     var existingUser = await _userRepository.GetByUsernameAsync(userDto.Username);
-                    if (existingUser != null && existingUser.UserId != id)
+                    if (existingUser != null && existingUser.UserId.ToString() != id.ToString())
                     {
                         throw new ValidationException("Username is already taken");
                     }
@@ -151,7 +154,7 @@ namespace DocumentManagementML.Application.Services
                 if (!string.IsNullOrEmpty(userDto.Email) && userDto.Email != user.Email)
                 {
                     var existingUser = await _userRepository.GetByEmailAsync(userDto.Email);
-                    if (existingUser != null && existingUser.UserId != id)
+                    if (existingUser != null && existingUser.UserId.ToString() != id.ToString())
                     {
                         throw new ValidationException("Email is already taken");
                     }
@@ -171,11 +174,10 @@ namespace DocumentManagementML.Application.Services
                     user.IsActive = userDto.IsActive.Value;
                 }
                 
-                await _userRepository.UpdateAsync(user);
-                await _userRepository.SaveChangesAsync();
+                var updatedUser = await _userRepository.UpdateAsync(user);
                 
                 _logger.LogInformation($"User updated: {id}");
-                return _mapper.Map<UserDto>(user);
+                return _mapper.Map<UserDto>(updatedUser);
             }
             catch (Exception ex) when (!(ex is ValidationException))
             {
@@ -188,7 +190,7 @@ namespace DocumentManagementML.Application.Services
         /// Deactivates a user
         /// </summary>
         /// <param name="id">User identifier</param>
-        public async Task DeactivateUserAsync(int id)
+        public async Task DeactivateUserAsync(Guid id)
         {
             var user = await _userRepository.GetByIdAsync(id);
             if (user == null || !user.IsActive)
@@ -199,7 +201,6 @@ namespace DocumentManagementML.Application.Services
             try
             {
                 await _userRepository.DeactivateAsync(id);
-                await _userRepository.SaveChangesAsync();
                 
                 _logger.LogInformation($"User deactivated: {id}");
             }
@@ -236,7 +237,6 @@ namespace DocumentManagementML.Application.Services
                 // Update last login date
                 user.LastLoginDate = DateTime.UtcNow;
                 await _userRepository.UpdateAsync(user);
-                await _userRepository.SaveChangesAsync();
                 
                 _logger.LogInformation($"User {username} authenticated successfully");
                 return _mapper.Map<UserDto>(user);
@@ -244,6 +244,33 @@ namespace DocumentManagementML.Application.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"Error during authentication: {ex.Message}");
+                return null;
+            }
+        }
+
+        public async Task<bool> UserExistsAsync(Guid userId)
+        {
+            try
+            {
+                return await _userRepository.ExistsAsync(userId);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error checking if user with ID {UserId} exists", userId);
+                return false;
+            }
+        }
+
+        public async Task<string?> GetUserNameAsync(Guid userId)
+        {
+            try
+            {
+                var user = await _userRepository.GetByIdAsync(userId);
+                return user?.Username;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving user name for user with ID {UserId}", userId);
                 return null;
             }
         }

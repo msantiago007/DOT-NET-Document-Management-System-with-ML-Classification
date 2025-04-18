@@ -15,12 +15,15 @@ namespace DocumentManagementML.Infrastructure.Repositories
     /// </summary>
     public class DocumentTypeRepository : BaseRepository<DocumentType>, IDocumentTypeRepository
     {
+        private new readonly DocumentManagementDbContext _dbContext;
+
         /// <summary>
         /// Initializes a new instance of the DocumentTypeRepository class
         /// </summary>
         /// <param name="context">Database context</param>
         public DocumentTypeRepository(DocumentManagementDbContext context) : base(context)
         {
+            _dbContext = context;
         }
 
         /// <summary>
@@ -29,7 +32,7 @@ namespace DocumentManagementML.Infrastructure.Repositories
         /// <returns>Collection of active document types</returns>
         public async Task<IEnumerable<DocumentType>> GetActiveTypesAsync()
         {
-            return await _context.DocumentTypes
+            return await _dbContext.DocumentTypes
                 .Where(dt => dt.IsActive)
                 .OrderBy(dt => dt.TypeName)
                 .ToListAsync();
@@ -56,10 +59,25 @@ namespace DocumentManagementML.Infrastructure.Repositories
         /// <returns>Document type with documents if found, null otherwise</returns>
         public async Task<DocumentType?> GetWithDocumentsAsync(int id)
         {
-            return await _context.DocumentTypes
+            return await _dbContext.DocumentTypes
                 .Include(dt => dt.Documents.Where(d => !d.IsDeleted))
                 .Where(dt => dt.DocumentTypeId == id && dt.IsActive)
                 .FirstOrDefaultAsync();
+        }
+
+        public async Task<DocumentType?> GetByNameAsync(string name)
+        {
+            return await _dbSet.FirstOrDefaultAsync(dt => dt.TypeName == name);
+        }
+
+        public async Task<IEnumerable<DocumentType>> GetActiveDocumentTypesAsync(int skip, int take)
+        {
+            return await _dbSet
+                .Where(dt => dt.IsActive)
+                .OrderBy(dt => dt.TypeName)
+                .Skip(skip)
+                .Take(take)
+                .ToListAsync();
         }
     }
 }

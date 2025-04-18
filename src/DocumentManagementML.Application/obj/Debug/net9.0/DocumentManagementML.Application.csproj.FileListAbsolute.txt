@@ -13,3 +13,4 @@ c:\Projects\DocumentManagementML\src\DocumentManagementML.Application\obj\Debug\
 c:\Projects\DocumentManagementML\src\DocumentManagementML.Application\obj\Debug\net9.0\refint\DocumentManagementML.Application.dll
 c:\Projects\DocumentManagementML\src\DocumentManagementML.Application\obj\Debug\net9.0\DocumentManagementML.Application.pdb
 C:\Projects\DocumentManagementML\src\DocumentManagementML.Application\obj\Debug\net9.0\ref\DocumentManagementML.Application.dll
+C:\Projects\DocumentManagementML\src\DocumentManagementML.Application\obj\Debug\net9.0\DocumentManagementML.Application.sourcelink.json

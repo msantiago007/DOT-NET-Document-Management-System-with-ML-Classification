@@ -23,7 +23,7 @@ namespace DocumentManagementML.Domain.Entities
             Documents = new List<Document>();
             
             // Set default values
-            TypeName = string.Empty;
+            Name = string.Empty;
             Description = string.Empty;
             SchemaDefinition = string.Empty;
             CreatedDate = DateTime.UtcNow;
@@ -34,46 +34,46 @@ namespace DocumentManagementML.Domain.Entities
         /// <summary>
         /// Gets or sets the unique identifier for the document type.
         /// </summary>
-        public int DocumentTypeId { get; set; }
+        public Guid DocumentTypeId { get; set; }
 
         /// <summary>
         /// Gets or sets the name of the document type.
         /// Must be unique within the system.
         /// </summary>
-        public string TypeName { get; set; }
+        public string Name { get; set; } = string.Empty;
 
         /// <summary>
         /// Gets or sets the description of the document type.
         /// </summary>
-        public string Description { get; set; }
+        public string? Description { get; set; }
 
         /// <summary>
         /// Gets or sets the JSON schema definition for the document type.
         /// This defines the expected structure and metadata for documents of this type.
         /// </summary>
-        public string SchemaDefinition { get; set; }
+        public string SchemaDefinition { get; set; } = string.Empty;
 
         /// <summary>
         /// Gets or sets a value indicating whether the document type is active.
         /// Inactive document types cannot be assigned to new documents.
         /// </summary>
-        public bool IsActive { get; set; }
+        public bool IsActive { get; set; } = true;
 
         /// <summary>
         /// Gets or sets the date and time when the document type was created.
         /// </summary>
-        public DateTime CreatedDate { get; set; }
+        public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
 
         /// <summary>
         /// Gets or sets the date and time when the document type was last modified.
         /// </summary>
-        public DateTime LastModifiedDate { get; set; }
+        public DateTime LastModifiedDate { get; set; } = DateTime.UtcNow;
 
         // Navigation properties
 
         /// <summary>
         /// Gets or sets the collection of documents of this type.
         /// </summary>
-        public ICollection<Document> Documents { get; set; }
+        public ICollection<Document> Documents { get; set; } = new List<Document>();
     }
 }

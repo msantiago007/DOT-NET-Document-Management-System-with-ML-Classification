@@ -9,3 +9,4 @@ c:\Projects\DocumentManagementML\src\DocumentManagementML.Shared\obj\Debug\net9.
 c:\Projects\DocumentManagementML\src\DocumentManagementML.Shared\obj\Debug\net9.0\refint\DocumentManagementML.Shared.dll
 c:\Projects\DocumentManagementML\src\DocumentManagementML.Shared\obj\Debug\net9.0\DocumentManagementML.Shared.pdb
 c:\Projects\DocumentManagementML\src\DocumentManagementML.Shared\obj\Debug\net9.0\ref\DocumentManagementML.Shared.dll
+C:\Projects\DocumentManagementML\src\DocumentManagementML.Shared\obj\Debug\net9.0\DocumentManagementML.Shared.sourcelink.json

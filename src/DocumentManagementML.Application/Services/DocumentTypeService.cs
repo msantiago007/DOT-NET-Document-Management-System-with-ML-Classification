@@ -8,7 +8,12 @@ using DocumentManagementML.Domain.Repositories;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.IO;
+using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
+
 
 namespace DocumentManagementML.Application.Services
 {
@@ -38,33 +43,40 @@ namespace DocumentManagementML.Application.Services
         }
 
         /// <summary>
+        /// Gets all document types
+        /// </summary>
+        /// <returns>Collection of document type DTOs</returns>
+        public async Task<IEnumerable<DocumentTypeDto>> GetAllDocumentTypesAsync()
+        {
+            try
+            {
+                var documentTypes = await _documentTypeRepository.GetAllAsync();
+                return _mapper.Map<IEnumerable<DocumentTypeDto>>(documentTypes);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving all document types");
+                throw;
+            }
+        }
+
+        /// <summary>
         /// Gets a document type by its identifier
         /// </summary>
         /// <param name="id">Document type identifier</param>
         /// <returns>Document type DTO</returns>
-        public async Task<DocumentTypeDto> GetDocumentTypeByIdAsync(int id)
+        public async Task<DocumentTypeDto?> GetDocumentTypeByIdAsync(Guid id)
         {
-            var documentType = await _documentTypeRepository.GetByIdAsync(id);
-            if (documentType == null || !documentType.IsActive)
+            try
             {
-                throw new NotFoundException($"Document type with ID {id} not found");
+                var documentType = await _documentTypeRepository.GetByIdAsync(id);
+                return documentType != null ? _mapper.Map<DocumentTypeDto>(documentType) : null;
             }
-
-            return _mapper.Map<DocumentTypeDto>(documentType);
-        }
-
-        /// <summary>
-        /// Gets all document types with pagination
-        /// </summary>
-        /// <param name="skip">Number of types to skip</param>
-        /// <param name="limit">Maximum number of types to return</param>
-        /// <returns>Collection of document type DTOs</returns>
-        public async Task<IEnumerable<DocumentTypeDto>> GetDocumentTypesAsync(int skip = 0, int limit = 100)
-        {
-            var documentTypes = await _documentTypeRepository.GetActiveTypesAsync();
-            return _mapper.Map<IEnumerable<DocumentTypeDto>>(documentTypes)
-                .Skip(skip)
-                .Take(limit);
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving document type with ID {DocumentTypeId}", id);
+                throw;
+            }
         }
 
         /// <summary>
@@ -76,28 +88,14 @@ namespace DocumentManagementML.Application.Services
         {
             try
             {
-                _logger.LogInformation($"Creating document type: {documentTypeDto.TypeName}");
-                
-                var documentType = new DocumentType
-                {
-                    TypeName = documentTypeDto.TypeName,
-                    Description = documentTypeDto.Description,
-                    SchemaDefinition = documentTypeDto.SchemaDefinition,
-                    IsActive = true,
-                    CreatedDate = DateTime.UtcNow,
-                    LastModifiedDate = DateTime.UtcNow
-                };
-                
-                await _documentTypeRepository.AddAsync(documentType);
-                await _documentTypeRepository.SaveChangesAsync();
-                
-                _logger.LogInformation($"Document type created with ID: {documentType.DocumentTypeId}");
-                return _mapper.Map<DocumentTypeDto>(documentType);
+                var documentType = _mapper.Map<DocumentType>(documentTypeDto);
+                var createdDocumentType = await _documentTypeRepository.AddAsync(documentType);
+                return _mapper.Map<DocumentTypeDto>(createdDocumentType);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error creating document type: {ex.Message}");
-                throw new ApplicationException($"Error creating document type: {ex.Message}", ex);
+                _logger.LogError(ex, "Error creating document type {DocumentTypeName}", documentTypeDto.Name);
+                throw;
             }
         }
 
@@ -107,75 +105,84 @@ namespace DocumentManagementML.Application.Services
         /// <param name="id">Document type identifier</param>
         /// <param name="documentTypeDto">Document type update DTO</param>
         /// <returns>Updated document type DTO</returns>
-        public async Task<DocumentTypeDto> UpdateDocumentTypeAsync(int id, DocumentTypeUpdateDto documentTypeDto)
+        public async Task<DocumentTypeDto?> UpdateDocumentTypeAsync(Guid id, DocumentTypeUpdateDto documentTypeDto)
         {
-            var documentType = await _documentTypeRepository.GetByIdAsync(id);
-            if (documentType == null || !documentType.IsActive)
-            {
-                throw new NotFoundException($"Document type with ID {id} not found");
-            }
-            
-            // Update properties if provided
-            if (documentTypeDto.TypeName != null)
-            {
-                documentType.TypeName = documentTypeDto.TypeName;
-            }
-            
-            if (documentTypeDto.Description != null)
-            {
-                documentType.Description = documentTypeDto.Description;
-            }
-            
-            if (documentTypeDto.SchemaDefinition != null)
-            {
-                documentType.SchemaDefinition = documentTypeDto.SchemaDefinition;
-            }
-            
-            if (documentTypeDto.IsActive.HasValue)
-            {
-                documentType.IsActive = documentTypeDto.IsActive.Value;
-            }
-            
-            documentType.LastModifiedDate = DateTime.UtcNow;
-            
             try
             {
-                await _documentTypeRepository.UpdateAsync(documentType);
-                await _documentTypeRepository.SaveChangesAsync();
-                
-                _logger.LogInformation($"Document type updated: {id}");
-                return _mapper.Map<DocumentTypeDto>(documentType);
+                var existingDocumentType = await _documentTypeRepository.GetByIdAsync(id);
+                if (existingDocumentType == null)
+                {
+                    return null;
+                }
+
+                // Update properties
+                existingDocumentType.Name = documentTypeDto.Name;
+                existingDocumentType.Description = documentTypeDto.Description;
+                existingDocumentType.IsActive = documentTypeDto.IsActive;
+
+                var updatedDocumentType = await _documentTypeRepository.UpdateAsync(existingDocumentType);
+                return _mapper.Map<DocumentTypeDto>(updatedDocumentType);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error updating document type: {ex.Message}");
-                throw new ApplicationException($"Error updating document type: {ex.Message}", ex);
+                _logger.LogError(ex, "Error updating document type with ID {DocumentTypeId}", id);
+                throw;
             }
         }
 
         /// <summary>
-        /// Deactivates a document type
+        /// Deletes a document type
         /// </summary>
         /// <param name="id">Document type identifier</param>
-        public async Task DeactivateDocumentTypeAsync(int id)
+        /// <returns>True if the document type was deleted, false otherwise</returns>
+        public async Task<bool> DeleteDocumentTypeAsync(Guid id)
         {
-            var documentType = await _documentTypeRepository.GetByIdAsync(id);
-            if (documentType == null || !documentType.IsActive)
-            {
-                throw new NotFoundException($"Document type with ID {id} not found");
-            }
-            
             try
             {
-                await _documentTypeRepository.DeactivateAsync(id);
-                await _documentTypeRepository.SaveChangesAsync();
-                
-                _logger.LogInformation($"Document type deactivated: {id}");
+                var documentType = await _documentTypeRepository.GetByIdAsync(id);
+                if (documentType == null)
+                {
+                    return false;
+                }
+
+                return await _documentTypeRepository.DeleteAsync(id);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error deactivating document type: {ex.Message}");
-                throw new ApplicationException($"Error deactivating document type: {ex.Message}", ex);
+                _logger.LogError(ex, "Error deleting document type with ID {DocumentTypeId}", id);
+                throw;
+            }
+        }
+
+        // Additional methods to implement the interface
+        public async Task<IEnumerable<DocumentTypeDto>> GetDocumentTypesAsync(int skip = 0, int limit = 100)
+        {
+            try
+            {
+                var documentTypes = await _documentTypeRepository.GetAllAsync();
+                return _mapper.Map<IEnumerable<DocumentTypeDto>>(documentTypes)
+                    .Skip(skip)
+                    .Take(limit);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving document types with pagination");
+                throw;
+            }
+        }
+
+        public async Task DeactivateDocumentTypeAsync(int id)
+        {
+            try
+            {
+                // Since we're using Guid in our repository but int in this method,
+                // we need to handle this mismatch. For now, we'll throw an exception.
+                throw new NotImplementedException("Method not implemented due to ID type mismatch");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error deactivating document type with ID {DocumentTypeId}", id);
+                throw;
             }
         }
     }

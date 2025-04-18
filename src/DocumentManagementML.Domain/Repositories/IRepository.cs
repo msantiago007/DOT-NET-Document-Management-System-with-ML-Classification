@@ -1,11 +1,12 @@
 // IRepository.cs
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace DocumentManagementML.Domain.Repositories
 {
     /// <summary>
-    /// Generic repository interface defining common operations for all entities
+    /// Generic repository interface for common entity operations
     /// </summary>
     /// <typeparam name="T">Entity type</typeparam>
     public interface IRepository<T> where T : class
@@ -15,7 +16,7 @@ namespace DocumentManagementML.Domain.Repositories
         /// </summary>
         /// <param name="id">Entity identifier</param>
         /// <returns>Entity if found, null otherwise</returns>
-        Task<T?> GetByIdAsync(int id);
+        Task<T?> GetByIdAsync(Guid id);
         
         /// <summary>
         /// Gets all entities
@@ -42,13 +43,15 @@ namespace DocumentManagementML.Domain.Repositories
         /// Updates an existing entity
         /// </summary>
         /// <param name="entity">Entity to update</param>
-        Task UpdateAsync(T entity);
+        /// <returns>Updated entity</returns>
+        Task<T> UpdateAsync(T entity);
         
         /// <summary>
         /// Deletes an entity
         /// </summary>
-        /// <param name="entity">Entity to delete</param>
-        Task DeleteAsync(T entity);
+        /// <param name="id">Entity identifier</param>
+        /// <returns>True if entity was deleted, false otherwise</returns>
+        Task<bool> DeleteAsync(Guid id);
         
         /// <summary>
         /// Saves changes to the database

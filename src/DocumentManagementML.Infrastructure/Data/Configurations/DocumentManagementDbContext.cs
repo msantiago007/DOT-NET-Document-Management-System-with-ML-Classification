@@ -70,9 +70,11 @@ namespace DocumentManagementML.Infrastructure.Data
             {
                 entity.ToTable("Users");
                 entity.HasKey(e => e.UserId);
-                entity.Property(e => e.Username).IsRequired().HasMaxLength(100);
-                entity.Property(e => e.Email).IsRequired().HasMaxLength(255);
-                entity.Property(e => e.PasswordHash).IsRequired().HasMaxLength(255);
+                entity.Property(e => e.Username).IsRequired().HasMaxLength(50);
+                entity.Property(e => e.Email).IsRequired().HasMaxLength(100);
+                entity.Property(e => e.PasswordHash).IsRequired();
+                entity.Property(e => e.FirstName).HasMaxLength(50);
+                entity.Property(e => e.LastName).HasMaxLength(50);
                 entity.HasIndex(e => e.Username).IsUnique();
                 entity.HasIndex(e => e.Email).IsUnique();
             });
@@ -83,7 +85,6 @@ namespace DocumentManagementML.Infrastructure.Data
                 entity.ToTable("DocumentTypes");
                 entity.HasKey(e => e.DocumentTypeId);
                 entity.Property(e => e.TypeName).IsRequired().HasMaxLength(100);
-                entity.Property(e => e.Description).HasMaxLength(500);
                 entity.HasIndex(e => e.TypeName).IsUnique();
             });
 
@@ -93,22 +94,21 @@ namespace DocumentManagementML.Infrastructure.Data
                 entity.ToTable("Documents");
                 entity.HasKey(e => e.DocumentId);
                 entity.Property(e => e.DocumentName).IsRequired().HasMaxLength(255);
-                entity.Property(e => e.FileLocation).IsRequired().HasMaxLength(1000);
-                entity.Property(e => e.FileType).IsRequired().HasMaxLength(50);
-                entity.Property(e => e.ContentHash).IsRequired().HasMaxLength(255);
+                entity.Property(e => e.FilePath).IsRequired();
+                entity.Property(e => e.FileSize).IsRequired();
+                entity.Property(e => e.ContentType).HasMaxLength(100);
+                entity.Property(e => e.UploadDate).IsRequired();
+                entity.Property(e => e.LastModifiedDate).IsRequired();
                 
-                // Define relationships
                 entity.HasOne(d => d.DocumentType)
                       .WithMany(t => t.Documents)
-                      .HasForeignKey(d => d.DocumentTypeId);
+                      .HasForeignKey(d => d.DocumentTypeId)
+                      .OnDelete(DeleteBehavior.SetNull);
                 
-                entity.HasOne(d => d.CreatedBy)
-                      .WithMany(u => u.CreatedDocuments)
-                      .HasForeignKey(d => d.CreatedById);
-                
-                entity.HasOne(d => d.LastModifiedBy)
-                      .WithMany(u => u.ModifiedDocuments)
-                      .HasForeignKey(d => d.LastModifiedById);
+                entity.HasOne(d => d.UploadedBy)
+                      .WithMany()
+                      .HasForeignKey(d => d.UploadedById)
+                      .OnDelete(DeleteBehavior.Restrict);
             });
 
             // Configure DocumentVersion entity
@@ -134,15 +134,14 @@ namespace DocumentManagementML.Infrastructure.Data
             modelBuilder.Entity<DocumentMetadata>(entity =>
             {
                 entity.ToTable("DocumentMetadata");
-                entity.HasKey(e => e.DocumentMetadataId);
+                entity.HasKey(e => e.Id);
                 entity.Property(e => e.MetadataKey).IsRequired().HasMaxLength(100);
-                entity.Property(e => e.DataType).IsRequired().HasMaxLength(50);
+                entity.Property(e => e.MetadataValue).IsRequired();
                 
-                entity.HasOne(m => m.Document)
-                      .WithMany(d => d.Metadata)
-                      .HasForeignKey(m => m.DocumentId);
-                
-                entity.HasIndex(e => new { e.DocumentId, e.MetadataKey }).IsUnique();
+                entity.HasOne<Document>()
+                      .WithMany(d => d.MetadataItems)
+                      .HasForeignKey(m => m.DocumentId)
+                      .OnDelete(DeleteBehavior.Cascade);
             });
 
             // Configure Tag entity

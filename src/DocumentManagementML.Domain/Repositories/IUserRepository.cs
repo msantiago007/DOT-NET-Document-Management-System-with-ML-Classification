@@ -1,14 +1,14 @@
 // IUserRepository.cs
-using DocumentManagementML.Domain.Entities;
-using System.Collections.Generic;
+using System;
 using System.Threading.Tasks;
+using DocumentManagementML.Domain.Entities;
 
 namespace DocumentManagementML.Domain.Repositories
 {
     /// <summary>
     /// Repository interface for User entity
     /// </summary>
-    public interface IUserRepository : IRepository<User>
+    public interface IUserRepository
     {
         /// <summary>
         /// Gets a user by username
@@ -36,6 +36,12 @@ namespace DocumentManagementML.Domain.Repositories
         /// Deactivates a user (soft delete)
         /// </summary>
         /// <param name="id">User identifier</param>
-        Task DeactivateAsync(int id);
+        Task DeactivateAsync(Guid id);
+
+        Task<User?> GetByIdAsync(Guid id);
+        Task<bool> ExistsAsync(Guid id);
+
+        Task<User> AddAsync(User user);
+        Task<User> UpdateAsync(User user);
     }
 }

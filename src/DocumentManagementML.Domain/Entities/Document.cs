@@ -21,7 +21,7 @@ namespace DocumentManagementML.Domain.Entities
         {
             // Initialize collections
             Versions = new List<DocumentVersion>();
-            Metadata = new List<DocumentMetadata>();
+            MetadataItems = new List<DocumentMetadata>();
             SourceRelationships = new List<DocumentRelationship>();
             TargetRelationships = new List<DocumentRelationship>();
             
@@ -38,12 +38,12 @@ namespace DocumentManagementML.Domain.Entities
         /// <summary>
         /// Gets or sets the unique identifier for the document.
         /// </summary>
-        public int DocumentId { get; set; }
+        public Guid DocumentId { get; set; }
 
         /// <summary>
         /// Gets or sets the name or title of the document.
         /// </summary>
-        public string DocumentName { get; set; }
+        public string DocumentName { get; set; } = string.Empty;
 
         /// <summary>
         /// Gets or sets the file location path where the document is stored.
@@ -73,7 +73,7 @@ namespace DocumentManagementML.Domain.Entities
         /// <summary>
         /// Gets or sets the date and time when the document was last modified.
         /// </summary>
-        public DateTime LastModifiedDate { get; set; }
+        public DateTime LastModifiedDate { get; set; } = DateTime.UtcNow;
 
         /// <summary>
         /// Gets or sets the ID of the user who last modified the document.
@@ -93,7 +93,52 @@ namespace DocumentManagementML.Domain.Entities
         /// <summary>
         /// Gets or sets the ID of the document type this document belongs to.
         /// </summary>
-        public int? DocumentTypeId { get; set; }
+        public Guid? DocumentTypeId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the file path of the document.
+        /// </summary>
+        public string FilePath { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Gets or sets the file size of the document.
+        /// </summary>
+        public long FileSize { get; set; }
+
+        /// <summary>
+        /// Gets or sets the upload date of the document.
+        /// </summary>
+        public DateTime UploadDate { get; set; } = DateTime.UtcNow;
+
+        /// <summary>
+        /// Gets or sets the classification confidence of the document.
+        /// </summary>
+        public double? ClassificationConfidence { get; set; }
+
+        /// <summary>
+        /// Gets or sets the ID of the user who uploaded the document.
+        /// </summary>
+        public Guid? UploadedById { get; set; }
+
+        /// <summary>
+        /// Gets or sets the user who uploaded the document.
+        /// </summary>
+        public User? UploadedBy { get; set; }
+
+        /// <summary>
+        /// Gets or sets the metadata dictionary for the document.
+        /// </summary>
+        public ICollection<DocumentMetadata> MetadataItems { get; set; } = new List<DocumentMetadata>();
+
+        /// <summary>
+        /// Gets or sets the description of the document.
+        /// </summary>
+        public string? Description { get; set; }
+
+        /// <summary>
+        /// Gets or sets the content type of the document.
+        /// </summary>
+        public string ContentType { get; set; } = string.Empty;
 
         // Navigation properties
 
@@ -115,12 +160,7 @@ namespace DocumentManagementML.Domain.Entities
         /// <summary>
         /// Gets or sets the collection of versions for this document.
         /// </summary>
-        public ICollection<DocumentVersion> Versions { get; set; }
-
-        /// <summary>
-        /// Gets or sets the collection of metadata associated with this document.
-        /// </summary>
-        public ICollection<DocumentMetadata> Metadata { get; set; }
+        public ICollection<DocumentVersion> Versions { get; set; } = new List<DocumentVersion>();
 
         /// <summary>
         /// Gets or sets the collection of relationships where this document is the source.

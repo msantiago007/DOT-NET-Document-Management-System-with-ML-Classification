@@ -30,9 +30,7 @@ namespace DocumentManagementML.Infrastructure.Repositories
         /// <returns>User if found, null otherwise</returns>
         public async Task<User?> GetByUsernameAsync(string username)
         {
-            return await _context.Users
-                .Where(u => u.Username == username && u.IsActive)
-                .FirstOrDefaultAsync();
+            return await _dbSet.FirstOrDefaultAsync(u => u.Username == username);
         }
 
         /// <summary>
@@ -42,9 +40,7 @@ namespace DocumentManagementML.Infrastructure.Repositories
         /// <returns>User if found, null otherwise</returns>
         public async Task<User?> GetByEmailAsync(string email)
         {
-            return await _context.Users
-                .Where(u => u.Email == email && u.IsActive)
-                .FirstOrDefaultAsync();
+            return await _dbSet.FirstOrDefaultAsync(u => u.Email == email);
         }
 
         /// <summary>
@@ -55,7 +51,7 @@ namespace DocumentManagementML.Infrastructure.Repositories
         /// <returns>Paged collection of active users</returns>
         public async Task<IEnumerable<User>> GetActiveUsersAsync(int skip, int take)
         {
-            return await _context.Users
+            return await _dbSet
                 .Where(u => u.IsActive)
                 .OrderBy(u => u.Username)
                 .Skip(skip)
@@ -67,15 +63,19 @@ namespace DocumentManagementML.Infrastructure.Repositories
         /// Deactivates a user (soft delete)
         /// </summary>
         /// <param name="id">User identifier</param>
-        public async Task DeactivateAsync(int id)
+        public async Task DeactivateAsync(Guid id)
         {
-            var user = await _dbSet.FindAsync(id);
+            var user = await GetByIdAsync(id);
             if (user != null)
             {
                 user.IsActive = false;
-                // Optionally set last modified date if your entity has it
-                // user.LastModifiedDate = DateTime.UtcNow;
+                await UpdateAsync(user);
             }
+        }
+
+        public async Task<bool> ExistsAsync(Guid userId)
+        {
+            return await _dbSet.AnyAsync(u => u.UserId == userId);
         }
     }
 }

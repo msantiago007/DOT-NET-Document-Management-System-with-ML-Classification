@@ -36,41 +36,56 @@ namespace DocumentManagementML.Domain.Entities
         /// <summary>
         /// Gets or sets the unique identifier for the user.
         /// </summary>
-        public int UserId { get; set; }
+        public Guid UserId { get; set; }
 
         /// <summary>
         /// Gets or sets the username used for authentication.
         /// Must be unique within the system.
         /// </summary>
-        public string Username { get; set; }
+        public string Username { get; set; } = string.Empty;
 
         /// <summary>
         /// Gets or sets the user's email address.
         /// Must be unique within the system.
         /// </summary>
-        public string Email { get; set; }
+        public string Email { get; set; } = string.Empty;
 
         /// <summary>
         /// Gets or sets the hashed password for the user.
         /// </summary>
-        public string PasswordHash { get; set; }
+        public string PasswordHash { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Gets or sets the user's first name.
+        /// </summary>
+        public string? FirstName { get; set; }
+
+        /// <summary>
+        /// Gets or sets the user's last name.
+        /// </summary>
+        public string? LastName { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether the user account is active.
         /// Inactive users cannot access the system.
         /// </summary>
-        public bool IsActive { get; set; }
+        public bool IsActive { get; set; } = true;
 
         /// <summary>
         /// Gets or sets the date and time when the user account was created.
         /// </summary>
-        public DateTime CreatedDate { get; set; }
+        public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
 
         /// <summary>
         /// Gets or sets the date and time of the user's last login.
         /// Null if the user has never logged in.
         /// </summary>
         public DateTime? LastLoginDate { get; set; }
+
+        /// <summary>
+        /// Gets or sets the date and time when the user account was last modified.
+        /// </summary>
+        public DateTime LastModifiedDate { get; set; } = DateTime.UtcNow;
 
         // Navigation properties
 
@@ -93,5 +108,10 @@ namespace DocumentManagementML.Domain.Entities
         /// Gets or sets the collection of document relationships created by this user.
         /// </summary>
         public ICollection<DocumentRelationship> CreatedRelationships { get; set; }
+
+        /// <summary>
+        /// Gets or sets the collection of documents uploaded by this user.
+        /// </summary>
+        public ICollection<Document>? UploadedDocuments { get; set; }
     }
 }

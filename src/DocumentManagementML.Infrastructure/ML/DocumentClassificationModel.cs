@@ -1,4 +1,12 @@
 // DocumentClassificationModel.cs
+using Microsoft.ML;
+using Microsoft.ML.Data;
+using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Logging;
+using DocumentManagementML.Infrastructure.Settings;
+using DocumentManagementML.Domain.Services;
+using DocumentManagementML.Domain.Entities;
+
 namespace DocumentManagementML.Infrastructure.ML
 {
     public class DocumentClassificationModel : IDocumentClassificationModel

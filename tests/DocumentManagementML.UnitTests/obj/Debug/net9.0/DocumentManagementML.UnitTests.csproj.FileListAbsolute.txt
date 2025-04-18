@@ -102,3 +102,10 @@ c:\Projects\DocumentManagementML\tests\DocumentManagementML.UnitTests\obj\Debug\
 c:\Projects\DocumentManagementML\tests\DocumentManagementML.UnitTests\obj\Debug\net9.0\DocumentManagementML.UnitTests.pdb
 c:\Projects\DocumentManagementML\tests\DocumentManagementML.UnitTests\obj\Debug\net9.0\DocumentManagementML.UnitTests.genruntimeconfig.cache
 c:\Projects\DocumentManagementML\tests\DocumentManagementML.UnitTests\obj\Debug\net9.0\ref\DocumentManagementML.UnitTests.dll
+C:\Projects\DocumentManagementML\tests\DocumentManagementML.UnitTests\bin\Debug\net9.0\AutoMapper.dll
+C:\Projects\DocumentManagementML\tests\DocumentManagementML.UnitTests\bin\Debug\net9.0\AutoMapper.Extensions.Microsoft.DependencyInjection.dll
+C:\Projects\DocumentManagementML\tests\DocumentManagementML.UnitTests\bin\Debug\net9.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll
+C:\Projects\DocumentManagementML\tests\DocumentManagementML.UnitTests\bin\Debug\net9.0\Microsoft.Extensions.Logging.Abstractions.dll
+C:\Projects\DocumentManagementML\tests\DocumentManagementML.UnitTests\bin\Debug\net9.0\Microsoft.Extensions.Options.dll
+C:\Projects\DocumentManagementML\tests\DocumentManagementML.UnitTests\bin\Debug\net9.0\Microsoft.Extensions.Primitives.dll
+C:\Projects\DocumentManagementML\tests\DocumentManagementML.UnitTests\obj\Debug\net9.0\DocumentManagementML.UnitTests.sourcelink.json

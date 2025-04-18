@@ -1,131 +1,182 @@
 // DocumentService.cs
+
+using AutoMapper;
+using DocumentManagementML.Application.DTOs;
+using DocumentManagementML.Application.Exceptions;
+using DocumentManagementML.Application.Interfaces;
+using DocumentManagementML.Domain.Entities;
+using DocumentManagementML.Domain.Repositories;
+using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Security.Cryptography;
+
 namespace DocumentManagementML.Application.Services
 {
     public class DocumentService : IDocumentService
     {
         private readonly IDocumentRepository _documentRepository;
         private readonly IDocumentTypeRepository _documentTypeRepository;
-        private readonly IFileStorageService _fileStorageService;
+        private readonly IUserService _userService;
         private readonly IMapper _mapper;
         private readonly ILogger<DocumentService> _logger;
 
         public DocumentService(
             IDocumentRepository documentRepository,
             IDocumentTypeRepository documentTypeRepository,
-            IFileStorageService fileStorageService,
+            IUserService userService,
             IMapper mapper,
             ILogger<DocumentService> logger)
         {
             _documentRepository = documentRepository;
             _documentTypeRepository = documentTypeRepository;
-            _fileStorageService = fileStorageService;
+            _userService = userService;
             _mapper = mapper;
             _logger = logger;
         }
 
-        public async Task<DocumentDto> GetDocumentByIdAsync(int id)
+        public async Task<IEnumerable<DocumentDto>> GetAllDocumentsAsync()
         {
-            var document = await _documentRepository.GetWithMetadataAsync(id);
-            if (document == null)
+            try
             {
-                throw new NotFoundException($"Document with ID {id} not found");
+                var documents = await _documentRepository.GetAllAsync();
+                return _mapper.Map<IEnumerable<DocumentDto>>(documents);
             }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving all documents");
+                throw;
+            }
+        }
 
-            return _mapper.Map<DocumentDto>(document);
+        public async Task<DocumentDto?> GetDocumentByIdAsync(Guid id)
+        {
+            try
+            {
+                var document = await _documentRepository.GetByIdAsync(id);
+                return document != null ? _mapper.Map<DocumentDto>(document) : null;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving document with ID {DocumentId}", id);
+                throw;
+            }
+        }
+
+        public async Task<DocumentDto> CreateDocumentAsync(DocumentCreateDto documentDto, string filePath, string fileType, long fileSize, Guid? userId)
+        {
+            try
+            {
+                var document = _mapper.Map<Document>(documentDto);
+                
+                document.FilePath = filePath;
+                document.FileType = fileType;
+                document.FileSize = fileSize;
+                document.UploadDate = DateTime.UtcNow;
+                document.UploadedById = userId;
+                
+                if (documentDto.DocumentTypeId.HasValue)
+                {
+                    var documentType = await _documentTypeRepository.GetByIdAsync(documentDto.DocumentTypeId.Value);
+                    if (documentType == null)
+                    {
+                        throw new ArgumentException($"Document type with ID {documentDto.DocumentTypeId.Value} not found");
+                    }
+                }
+
+                document.DocumentName = documentDto.Name;
+                document.MetadataDictionary = documentDto.Metadata;
+
+                var createdDocument = await _documentRepository.AddAsync(document);
+                return _mapper.Map<DocumentDto>(createdDocument);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error creating document {DocumentName}", documentDto.Name);
+                throw;
+            }
+        }
+
+        public async Task<DocumentDto?> UpdateDocumentAsync(Guid id, DocumentUpdateDto documentDto)
+        {
+            try
+            {
+                var existingDocument = await _documentRepository.GetByIdAsync(id);
+                if (existingDocument == null)
+                {
+                    return null;
+                }
+
+                // Update properties
+                existingDocument.DocumentName = documentDto.Name;
+                existingDocument.Description = documentDto.Description;
+                existingDocument.DocumentTypeId = documentDto.DocumentTypeId.HasValue 
+                    ? Convert.ToInt32(documentDto.DocumentTypeId.Value.ToString()) 
+                    : null;
+                existingDocument.MetadataDictionary = documentDto.Metadata;
+                existingDocument.LastModifiedDate = DateTime.UtcNow;
+
+                if (documentDto.DocumentTypeId.HasValue)
+                {
+                    var documentType = await _documentTypeRepository.GetByIdAsync(documentDto.DocumentTypeId.Value);
+                    if (documentType == null)
+                    {
+                        throw new ArgumentException($"Document type with ID {documentDto.DocumentTypeId.Value} not found");
+                    }
+                }
+
+                var updatedDocument = await _documentRepository.UpdateAsync(existingDocument);
+                return _mapper.Map<DocumentDto>(updatedDocument);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating document with ID {DocumentId}", id);
+                throw;
+            }
+        }
+
+        public async Task<bool> DeleteDocumentAsync(Guid id)
+        {
+            try
+            {
+                var document = await _documentRepository.GetByIdAsync(id);
+                if (document == null)
+                {
+                    return false;
+                }
+
+                return await _documentRepository.DeleteAsync(id);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error deleting document with ID {DocumentId}", id);
+                throw;
+            }
+        }
+
+        public async Task<IEnumerable<DocumentDto>> SearchDocumentsAsync(string searchTerm, Guid? documentTypeId = null)
+        {
+            try
+            {
+                var documents = await _documentRepository.SearchAsync(searchTerm, documentTypeId);
+                return _mapper.Map<IEnumerable<DocumentDto>>(documents);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error searching documents with term {SearchTerm}", searchTerm);
+                throw;
+            }
         }
 
         public async Task<IEnumerable<DocumentDto>> GetDocumentsAsync(int skip = 0, int limit = 100)
         {
             var documents = await _documentRepository.GetActiveDocumentsAsync(skip, limit);
             return _mapper.Map<IEnumerable<DocumentDto>>(documents);
-        }
-
-        public async Task<DocumentDto> CreateDocumentAsync(DocumentCreateDto documentDto, Stream fileStream, string fileName)
-        {
-            // Check if document type exists
-            if (documentDto.DocumentTypeId.HasValue)
-            {
-                var documentType = await _documentTypeRepository.GetByIdAsync(documentDto.DocumentTypeId.Value);
-                if (documentType == null)
-                {
-                    throw new NotFoundException($"Document type with ID {documentDto.DocumentTypeId.Value} not found");
-                }
-            }
-
-            // Store file and generate hash
-            var filePath = await _fileStorageService.StoreFileAsync(fileStream, fileName, documentDto.FileType);
-            var fileSize = await _fileStorageService.GetFileSizeAsync(filePath);
-            var contentHash = await GenerateFileHashAsync(fileStream);
-
-            // Create document entity
-            var document = new Document
-            {
-                DocumentName = documentDto.DocumentName,
-                FileLocation = filePath,
-                FileType = documentDto.FileType,
-                FileSizeBytes = fileSize,
-                ContentHash = contentHash,
-                DocumentTypeId = documentDto.DocumentTypeId,
-                CreatedDate = DateTime.UtcNow,
-                CreatedById = 1, // TODO: Replace with authenticated user ID
-                LastModifiedDate = DateTime.UtcNow,
-                LastModifiedById = 1, // TODO: Replace with authenticated user ID
-                IsDeleted = false
-            };
-
-            await _documentRepository.AddAsync(document);
-            await _documentRepository.SaveChangesAsync();
-
-            _logger.LogInformation($"Document created with ID: {document.DocumentId}");
-            return _mapper.Map<DocumentDto>(document);
-        }
-
-        public async Task<DocumentDto> UpdateDocumentAsync(int id, DocumentUpdateDto documentDto)
-        {
-            var document = await _documentRepository.GetByIdAsync(id);
-            if (document == null)
-            {
-                throw new NotFoundException($"Document with ID {id} not found");
-            }
-
-            // Update document properties
-            if (!string.IsNullOrEmpty(documentDto.DocumentName))
-            {
-                document.DocumentName = documentDto.DocumentName;
-            }
-
-            if (documentDto.DocumentTypeId.HasValue)
-            {
-                var documentType = await _documentTypeRepository.GetByIdAsync(documentDto.DocumentTypeId.Value);
-                if (documentType == null)
-                {
-                    throw new NotFoundException($"Document type with ID {documentDto.DocumentTypeId.Value} not found");
-                }
-                document.DocumentTypeId = documentDto.DocumentTypeId.Value;
-            }
-
-            document.LastModifiedDate = DateTime.UtcNow;
-            document.LastModifiedById = 1; // TODO: Replace with authenticated user ID
-
-            await _documentRepository.UpdateAsync(document);
-            await _documentRepository.SaveChangesAsync();
-
-            _logger.LogInformation($"Document updated: {document.DocumentId}");
-            return _mapper.Map<DocumentDto>(document);
-        }
-
-        public async Task DeleteDocumentAsync(int id)
-        {
-            var document = await _documentRepository.GetByIdAsync(id);
-            if (document == null)
-            {
-                throw new NotFoundException($"Document with ID {id} not found");
-            }
-
-            await _documentRepository.SoftDeleteAsync(id);
-            await _documentRepository.SaveChangesAsync();
-
-            _logger.LogInformation($"Document soft deleted: {id}");
         }
 
         public async Task<IEnumerable<DocumentDto>> GetDocumentsByTypeAsync(int typeId, int skip = 0, int limit = 100)

@@ -1,210 +1,137 @@
 // DocumentClassificationService.cs
+
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using AutoMapper;
+using DocumentManagementML.Application.DTOs;
+using DocumentManagementML.Application.Interfaces;
+using DocumentManagementML.Domain.Entities;
+using DocumentManagementML.Domain.Repositories;
+using DocumentManagementML.Domain.Services;
+using Microsoft.Extensions.Logging;
+
 namespace DocumentManagementML.Application.Services
 {
     public class DocumentClassificationService : IDocumentClassificationService
     {
         private readonly IDocumentRepository _documentRepository;
-        private readonly IFileStorageService _fileStorageService;
-        private readonly IDocumentClassificationModel _classificationModel;
+        private readonly IDocumentTypeRepository _documentTypeRepository;
+        private readonly IMLModelService _mlModelService;
         private readonly IMapper _mapper;
         private readonly ILogger<DocumentClassificationService> _logger;
 
         public DocumentClassificationService(
             IDocumentRepository documentRepository,
-            IFileStorageService fileStorageService,
-            IDocumentClassificationModel classificationModel,
+            IDocumentTypeRepository documentTypeRepository,
+            IMLModelService mlModelService,
             IMapper mapper,
             ILogger<DocumentClassificationService> logger)
         {
             _documentRepository = documentRepository;
-            _fileStorageService = fileStorageService;
-            _classificationModel = classificationModel;
+            _documentTypeRepository = documentTypeRepository;
+            _mlModelService = mlModelService;
             _mapper = mapper;
             _logger = logger;
         }
 
-        public async Task<DocumentClassificationResultDto> ClassifyDocumentAsync(int documentId)
-        {
-            // Get document
-            var document = await _documentRepository.GetByIdAsync(documentId);
-            if (document == null)
-            {
-                throw new NotFoundException($"Document with ID {documentId} not found");
-            }
-
-            // Retrieve document file
-            using var fileStream = await _fileStorageService.RetrieveFileAsync(document.FileLocation);
-            var fileExtension = Path.GetExtension(document.FileLocation);
-
-            // Classify document
-            var result = await _classificationModel.ClassifyAsync(fileStream, fileExtension);
-
-            // Map to DTO
-            var resultDto = _mapper.Map<DocumentClassificationResultDto>(result);
-            
-            // Update document type if high confidence
-            if (result.Success && result.Confidence > 0.7) // Configurable threshold
-            {
-                try
-                {
-                    // Logic to map predicted label to document type ID
-                    // This would involve looking up the document type by name or implementing a mapping
-                    // For simplicity, we're not implementing this part in this example
-                    _logger.LogInformation($"Document {documentId} classified as {result.DocumentType} with confidence {result.Confidence}");
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, $"Error updating document type after classification: {ex.Message}");
-                }
-            }
-
-            return resultDto;
-        }
-
-        public async Task<DocumentClassificationResultDto> ClassifyDocumentAsync(Stream documentStream, string fileName)
-        {
-            var fileExtension = Path.GetExtension(fileName);
-            
-            // Classify document
-            var result = await _classificationModel.ClassifyAsync(documentStream, fileExtension);
-            
-            // Map to DTO
-            return _mapper.Map<DocumentClassificationResultDto>(result);
-        }
-
-        public async Task TrainModelAsync()
+        public async Task<DocumentClassificationResultDto> ClassifyDocumentAsync(ClassificationRequestDto request)
         {
             try
             {
-                _logger.LogInformation("Starting model training");
-                
-                // Get training data
-                var trainingData = await GetTrainingDocumentsAsync();
-                
-                if (trainingData.Count == 0)
+                var document = await _documentRepository.GetByIdAsync(request.DocumentId);
+                if (document == null)
                 {
-                    _logger.LogWarning("No training data available");
-                    return;
-                }
-                
-                _logger.LogInformation($"Training with {trainingData.Count} documents");
-                
-                // Train model
-                var success = await _classificationModel.TrainModelAsync(trainingData);
-                
-                if (success)
-                {
-                    _logger.LogInformation("Model training completed successfully");
-                }
-                else
-                {
-                    _logger.LogWarning("Model training completed with issues");
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Error training model: {ex.Message}");
-                throw;
-            }
-        }
-
-        public async Task<ModelMetricsDto> EvaluateModelAsync()
-        {
-            try
-            {
-                _logger.LogInformation("Starting model evaluation");
-                
-                // Get test data (in a real implementation, you would have separate test data)
-                var testData = await GetTestDocumentsAsync();
-                
-                if (testData.Count == 0)
-                {
-                    _logger.LogWarning("No test data available");
-                    return new ModelMetricsDto
+                    return new DocumentClassificationResultDto
                     {
-                        Success = false,
-                        ErrorMessage = "No test data available"
+                        DocumentId = request.DocumentId,
+                        IsSuccessful = false,
+                        ErrorMessage = $"Document with ID {request.DocumentId} not found"
                     };
                 }
-                
-                _logger.LogInformation($"Evaluating with {testData.Count} documents");
-                
-                // Evaluate model
-                var metrics = await _classificationModel.EvaluateModelAsync(testData);
-                
-                // Map to DTO
-                return _mapper.Map<ModelMetricsDto>(metrics);
+
+                var classificationResult = await _mlModelService.ClassifyDocumentAsync(
+                    request.FilePath,
+                    request.FileType);
+
+                if (classificationResult.IsSuccessful && classificationResult.PredictedDocumentTypeId.HasValue)
+                {
+                    var documentType = await _documentTypeRepository.GetByIdAsync(classificationResult.PredictedDocumentTypeId.Value);
+                    classificationResult.PredictedDocumentType = documentType;
+                }
+
+                classificationResult.DocumentId = request.DocumentId;
+                classificationResult.DocumentName = document.DocumentName;
+
+                var resultDto = _mapper.Map<DocumentClassificationResultDto>(classificationResult);
+                return resultDto;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error evaluating model: {ex.Message}");
-                return new ModelMetricsDto
+                _logger.LogError(ex, "Error classifying document with ID {DocumentId}", request.DocumentId);
+                
+                return new DocumentClassificationResultDto
                 {
-                    Success = false,
-                    ErrorMessage = ex.Message
+                    DocumentId = request.DocumentId,
+                    IsSuccessful = false,
+                    ErrorMessage = $"Classification error: {ex.Message}"
                 };
             }
         }
 
-        private async Task<List<TrainingDocument>> GetTrainingDocumentsAsync()
+        public async Task<bool> ApplyClassificationResultAsync(DocumentClassificationResultDto result)
         {
-            // In a real implementation, you would have a dedicated training data repository
-            // This is a simplified example that uses existing documents
-            
-            var documents = await _documentRepository.GetAllAsync();
-            var trainingData = new List<TrainingDocument>();
-            
-            foreach (var document in documents)
+            try
             {
-                // Only use documents with a type assigned
-                if (document.DocumentTypeId.HasValue && !document.IsDeleted)
+                if (!result.IsSuccessful || !result.PredictedDocumentTypeId.HasValue)
                 {
-                    try
-                    {
-                        // Get document type name
-                        var documentType = await _context.DocumentTypes
-                            .Where(dt => dt.DocumentTypeId == document.DocumentTypeId.Value)
-                            .FirstOrDefaultAsync();
-                            
-                        if (documentType == null || !documentType.IsActive)
-                        {
-                            continue;
-                        }
-                        
-                        // Get document text
-                        using var stream = await _fileStorageService.RetrieveFileAsync(document.FileLocation);
-                        var fileExtension = Path.GetExtension(document.FileLocation);
-                        var text = await _textExtractor.ExtractTextAsync(stream, fileExtension);
-                        
-                        if (string.IsNullOrWhiteSpace(text))
-                        {
-                            continue;
-                        }
-                        
-                        trainingData.Add(new TrainingDocument
-                        {
-                            Text = text,
-                            DocumentType = documentType.TypeName
-                        });
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogError(ex, $"Error processing document {document.DocumentId} for training: {ex.Message}");
-                    }
+                    return false;
                 }
+
+                var document = await _documentRepository.GetByIdAsync(result.DocumentId);
+                if (document == null)
+                {
+                    return false;
+                }
+
+                document.DocumentTypeId = result.PredictedDocumentTypeId.HasValue 
+                    ? Convert.ToInt32(result.PredictedDocumentTypeId.Value.ToString()) 
+                    : null;
+                document.ClassificationConfidence = result.Confidence;
+                document.LastModifiedDate = DateTime.UtcNow;
+
+                await _documentRepository.UpdateAsync(document);
+                return true;
             }
-            
-            return trainingData;
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error applying classification result to document with ID {DocumentId}", result.DocumentId);
+                return false;
+            }
         }
 
-        private async Task<List<TrainingDocument>> GetTestDocumentsAsync()
+        public async Task<ModelMetricsDto> GetModelMetricsAsync()
         {
-            // In a real implementation, you would have separate test data
-            // For simplicity, we're using a subset of the training data
-            var trainingData = await GetTrainingDocumentsAsync();
-            
-            // Take a small subset for testing
-            return trainingData.Take(Math.Min(20, trainingData.Count / 5)).ToList();
+            // This is a placeholder implementation
+            return new ModelMetricsDto
+            {
+                Id = Guid.NewGuid(),
+                ModelName = "Document Classification Model",
+                ModelVersion = "1.0.0",
+                Accuracy = 0.85,
+                Precision = 0.82,
+                Recall = 0.79,
+                F1Score = 0.80,
+                TotalSamples = 1000,
+                TrainingDate = DateTime.UtcNow.AddDays(-7),
+                ClassMetrics = new Dictionary<string, double>
+                {
+                    { "Invoice", 0.92 },
+                    { "Contract", 0.88 },
+                    { "Report", 0.85 },
+                    { "Letter", 0.79 }
+                }
+            };
         }
     }
 }

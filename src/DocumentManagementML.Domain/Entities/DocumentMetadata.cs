@@ -29,37 +29,37 @@ namespace DocumentManagementML.Domain.Entities
         /// <summary>
         /// Gets or sets the unique identifier for the document metadata.
         /// </summary>
-        public int DocumentMetadataId { get; set; }
+        public Guid Id { get; set; }
 
         /// <summary>
         /// Gets or sets the ID of the document this metadata belongs to.
         /// </summary>
-        public int DocumentId { get; set; }
+        public Guid DocumentId { get; set; }
 
         /// <summary>
         /// Gets or sets the key or name of the metadata field.
         /// </summary>
-        public string MetadataKey { get; set; }
+        public string MetadataKey { get; set; } = string.Empty;
 
         /// <summary>
         /// Gets or sets the value of the metadata field.
         /// </summary>
-        public string MetadataValue { get; set; }
+        public string MetadataValue { get; set; } = string.Empty;
 
         /// <summary>
         /// Gets or sets the data type of the metadata value (e.g., string, number, date, boolean, json).
         /// </summary>
-        public string DataType { get; set; }
+        public string? DataType { get; set; }
 
         /// <summary>
         /// Gets or sets the date and time when this metadata was created.
         /// </summary>
-        public DateTime CreatedDate { get; set; }
+        public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
 
         /// <summary>
         /// Gets or sets the date and time when this metadata was last modified.
         /// </summary>
-        public DateTime LastModifiedDate { get; set; }
+        public DateTime LastModifiedDate { get; set; } = DateTime.UtcNow;
 
         // Navigation properties
 

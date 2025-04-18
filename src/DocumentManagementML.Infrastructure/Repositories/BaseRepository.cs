@@ -4,6 +4,8 @@ using DocumentManagementML.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System;
+using DocumentManagementML.Domain.Entities;
 
 namespace DocumentManagementML.Infrastructure.Repositories
 {
@@ -11,19 +13,19 @@ namespace DocumentManagementML.Infrastructure.Repositories
     /// Generic repository implementation for common entity operations
     /// </summary>
     /// <typeparam name="T">Entity type</typeparam>
-    public class BaseRepository<T> : IRepository<T> where T : class
+    public abstract class BaseRepository<T> : IRepository<T> where T : class
     {
-        protected readonly DocumentManagementDbContext _context;
+        protected readonly DbContext _dbContext;
         protected readonly DbSet<T> _dbSet;
 
         /// <summary>
         /// Initializes a new instance of the BaseRepository class
         /// </summary>
-        /// <param name="context">Database context</param>
-        public BaseRepository(DocumentManagementDbContext context)
+        /// <param name="dbContext">Database context</param>
+        protected BaseRepository(DbContext dbContext)
         {
-            _context = context;
-            _dbSet = context.Set<T>();
+            _dbContext = dbContext;
+            _dbSet = dbContext.Set<T>();
         }
 
         /// <summary>
@@ -31,7 +33,7 @@ namespace DocumentManagementML.Infrastructure.Repositories
         /// </summary>
         /// <param name="id">Entity identifier</param>
         /// <returns>Entity if found, null otherwise</returns>
-        public virtual async Task<T?> GetByIdAsync(int id)
+        public virtual async Task<T?> GetByIdAsync(Guid id)
         {
             return await _dbSet.FindAsync(id);
         }
@@ -64,6 +66,7 @@ namespace DocumentManagementML.Infrastructure.Repositories
         public virtual async Task<T> AddAsync(T entity)
         {
             await _dbSet.AddAsync(entity);
+            await _dbContext.SaveChangesAsync();
             return entity;
         }
 
@@ -71,20 +74,30 @@ namespace DocumentManagementML.Infrastructure.Repositories
         /// Updates an existing entity
         /// </summary>
         /// <param name="entity">Entity to update</param>
-        public virtual Task UpdateAsync(T entity)
+        /// <returns>Updated entity</returns>
+        public virtual async Task<T> UpdateAsync(T entity)
         {
             _dbSet.Update(entity);
-            return Task.CompletedTask;
+            await _dbContext.SaveChangesAsync();
+            return entity;
         }
 
         /// <summary>
         /// Deletes an entity
         /// </summary>
-        /// <param name="entity">Entity to delete</param>
-        public virtual Task DeleteAsync(T entity)
+        /// <param name="id">Entity identifier</param>
+        /// <returns>True if entity was deleted, false otherwise</returns>
+        public virtual async Task<bool> DeleteAsync(Guid id)
         {
+            var entity = await GetByIdAsync(id);
+            if (entity == null)
+            {
+                return false;
+            }
+
             _dbSet.Remove(entity);
-            return Task.CompletedTask;
+            await _dbContext.SaveChangesAsync();
+            return true;
         }
 
         /// <summary>
@@ -93,7 +106,7 @@ namespace DocumentManagementML.Infrastructure.Repositories
         /// <returns>Number of affected entities</returns>
         public async Task<int> SaveChangesAsync()
         {
-            return await _context.SaveChangesAsync();
+            return await _dbContext.SaveChangesAsync();
         }
     }
 }

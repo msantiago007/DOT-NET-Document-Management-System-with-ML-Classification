@@ -1,39 +1,45 @@
 // DocumentTypeDto.cs
+
+using System;
+using System.ComponentModel.DataAnnotations;
+
 namespace DocumentManagementML.Application.DTOs
 {
     public class DocumentTypeDto
     {
-        public int DocumentTypeId { get; set; }
-        public string TypeName { get; set; } = string.Empty;
+        public Guid Id { get; set; }
+        
+        [Required]
+        [StringLength(100)]
+        public string Name { get; set; } = string.Empty;
+        
+        [StringLength(500)]
         public string? Description { get; set; }
-        public string? SchemaDefinition { get; set; }
-        public bool IsActive { get; set; }
-        public DateTime CreatedDate { get; set; }
-        public DateTime LastModifiedDate { get; set; }
+        
+        public bool IsActive { get; set; } = true;
     }
-
+    
     public class DocumentTypeCreateDto
     {
         [Required]
         [StringLength(100)]
-        public string TypeName { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
         
         [StringLength(500)]
         public string? Description { get; set; }
         
-        public string? SchemaDefinition { get; set; }
+        public bool IsActive { get; set; } = true;
     }
-
+    
     public class DocumentTypeUpdateDto
     {
+        [Required]
         [StringLength(100)]
-        public string? TypeName { get; set; }
+        public string Name { get; set; } = string.Empty;
         
         [StringLength(500)]
         public string? Description { get; set; }
         
-        public string? SchemaDefinition { get; set; }
-        
-        public bool? IsActive { get; set; }
+        public bool IsActive { get; set; } = true;
     }
 }

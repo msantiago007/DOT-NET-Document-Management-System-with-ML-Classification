@@ -1,4 +1,12 @@
 // LocalFileStorageService.cs
+using System;
+using System.IO;
+using System.Threading.Tasks;
+using DocumentManagementML.Domain.Services;
+using DocumentManagementML.Infrastructure.Settings;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+
 namespace DocumentManagementML.Infrastructure.Storage
 {
     public class LocalFileStorageService : IFileStorageService
@@ -12,65 +20,59 @@ namespace DocumentManagementML.Infrastructure.Storage
         {
             _storageSettings = storageSettings;
             _logger = logger;
-
-            // Ensure storage directory exists
-            Directory.CreateDirectory(_storageSettings.Value.LocalStoragePath);
         }
 
-        public async Task<string> StoreFileAsync(Stream fileStream, string fileName, string contentType)
+        public async Task<string> SaveFileAsync(Stream fileStream, string fileName)
         {
             try
             {
-                // Generate unique filename
-                var timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
-                var extension = Path.GetExtension(fileName);
-                var storageFileName = $"{timestamp}_{Path.GetFileNameWithoutExtension(fileName)}{extension}";
-                
-                // Create year/month folder structure
-                var yearMonth = DateTime.Now.ToString("yyyy/MM");
-                var relativePath = Path.Combine(yearMonth, storageFileName);
-                var fullPath = Path.Combine(_storageSettings.Value.LocalStoragePath, relativePath);
-                
-                // Ensure directory exists
-                Directory.CreateDirectory(Path.GetDirectoryName(fullPath));
-                
-                // Save file
-                fileStream.Position = 0;
-                using (var fileStream2 = new FileStream(fullPath, FileMode.Create))
+                var basePath = _storageSettings.Value.BasePath;
+                if (!Directory.Exists(basePath))
+                {
+                    Directory.CreateDirectory(basePath);
+                }
+
+                var uniqueFileName = $"{Guid.NewGuid()}_{fileName}";
+                var filePath = Path.Combine(basePath, uniqueFileName);
+
+                using (var fileStream2 = new FileStream(filePath, FileMode.Create))
                 {
                     await fileStream.CopyToAsync(fileStream2);
                 }
-                
-                _logger.LogInformation($"File saved: {fullPath}");
-                return relativePath; // Return relative path for storage in database
+
+                _logger.LogInformation($"File saved successfully: {filePath}");
+                return filePath;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error storing file: {ex.Message}");
-                throw new StorageException("Error storing file", ex);
+                _logger.LogError(ex, $"Error saving file: {ex.Message}");
+                throw;
             }
         }
 
-        public async Task<Stream> RetrieveFileAsync(string filePath)
+        public async Task<Stream> GetFileAsync(string filePath)
         {
             try
             {
-                var fullPath = Path.Combine(_storageSettings.Value.LocalStoragePath, filePath);
-                
-                if (!File.Exists(fullPath))
+                if (!File.Exists(filePath))
                 {
-                    _logger.LogWarning($"File not found: {fullPath}");
+                    _logger.LogWarning($"File not found: {filePath}");
                     throw new FileNotFoundException($"File not found: {filePath}");
                 }
-                
-                // Open file stream and return it
-                // Note: Caller is responsible for disposing the stream
-                return new FileStream(fullPath, FileMode.Open, FileAccess.Read);
+
+                var memoryStream = new MemoryStream();
+                using (var fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
+                {
+                    await fileStream.CopyToAsync(memoryStream);
+                }
+
+                memoryStream.Position = 0;
+                return memoryStream;
             }
-            catch (Exception ex) when (!(ex is FileNotFoundException))
+            catch (Exception ex)
             {
                 _logger.LogError(ex, $"Error retrieving file: {ex.Message}");
-                throw new StorageException("Error retrieving file", ex);
+                throw;
             }
         }
 
@@ -78,23 +80,22 @@ namespace DocumentManagementML.Infrastructure.Storage
         {
             try
             {
-                var fullPath = Path.Combine(_storageSettings.Value.LocalStoragePath, filePath);
-                
-                if (!File.Exists(fullPath))
+                if (File.Exists(filePath))
                 {
-                    _logger.LogWarning($"File not found for deletion: {fullPath}");
-                    return Task.CompletedTask;
+                    File.Delete(filePath);
+                    _logger.LogInformation($"File deleted successfully: {filePath}");
                 }
-                
-                File.Delete(fullPath);
-                _logger.LogInformation($"File deleted: {fullPath}");
-                
+                else
+                {
+                    _logger.LogWarning($"File not found for deletion: {filePath}");
+                }
+
                 return Task.CompletedTask;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"Error deleting file: {ex.Message}");
-                throw new StorageException("Error deleting file", ex);
+                throw;
             }
         }
 
@@ -134,15 +135,13 @@ namespace DocumentManagementML.Infrastructure.Storage
         {
             try
             {
-                var fullPath = Path.Combine(_storageSettings.Value.LocalStoragePath, filePath);
-                
-                if (!File.Exists(fullPath))
+                if (!File.Exists(filePath))
                 {
-                    _logger.LogWarning($"File not found for size check: {fullPath}");
+                    _logger.LogWarning($"File not found for size check: {filePath}");
                     throw new FileNotFoundException($"File not found: {filePath}");
                 }
                 
-                var fileInfo = new FileInfo(fullPath);
+                var fileInfo = new FileInfo(filePath);
                 return Task.FromResult(fileInfo.Length);
             }
             catch (Exception ex) when (!(ex is FileNotFoundException))
