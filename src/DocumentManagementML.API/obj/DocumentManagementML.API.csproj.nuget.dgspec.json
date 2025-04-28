@@ -1,0 +1,372 @@
+{
+  "format": 1,
+  "restore": {
+    "/home/administrator/nodejs/DocumentManagementML/src/DocumentManagementML.API/DocumentManagementML.API.csproj": {}
+  },
+  "projects": {
+    "/home/administrator/nodejs/DocumentManagementML/src/DocumentManagementML.API/DocumentManagementML.API.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/home/administrator/nodejs/DocumentManagementML/src/DocumentManagementML.API/DocumentManagementML.API.csproj",
+        "projectName": "DocumentManagementML.API",
+        "projectPath": "/home/administrator/nodejs/DocumentManagementML/src/DocumentManagementML.API/DocumentManagementML.API.csproj",
+        "packagesPath": "/home/administrator/.nuget/packages/",
+        "outputPath": "/home/administrator/nodejs/DocumentManagementML/src/DocumentManagementML.API/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/home/administrator/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net9.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net9.0": {
+            "targetAlias": "net9.0",
+            "projectReferences": {
+              "/home/administrator/nodejs/DocumentManagementML/src/DocumentManagementML.Application/DocumentManagementML.Application.csproj": {
+                "projectPath": "/home/administrator/nodejs/DocumentManagementML/src/DocumentManagementML.Application/DocumentManagementML.Application.csproj"
+              },
+              "/home/administrator/nodejs/DocumentManagementML/src/DocumentManagementML.Infrastructure/DocumentManagementML.Infrastructure.csproj": {
+                "projectPath": "/home/administrator/nodejs/DocumentManagementML/src/DocumentManagementML.Infrastructure/DocumentManagementML.Infrastructure.csproj"
+              },
+              "/home/administrator/nodejs/DocumentManagementML/src/DocumentManagementML.Shared/DocumentManagementML.Shared.csproj": {
+                "projectPath": "/home/administrator/nodejs/DocumentManagementML/src/DocumentManagementML.Shared/DocumentManagementML.Shared.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        }
+      },
+      "frameworks": {
+        "net9.0": {
+          "targetAlias": "net9.0",
+          "dependencies": {
+            "Microsoft.AspNetCore.OpenApi": {
+              "target": "Package",
+              "version": "[9.0.0, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.AspNetCore.App": {
+              "privateAssets": "none"
+            },
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/home/administrator/.dotnet/sdk/9.0.100-preview.1.24101.2/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "/home/administrator/nodejs/DocumentManagementML/src/DocumentManagementML.Application/DocumentManagementML.Application.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/home/administrator/nodejs/DocumentManagementML/src/DocumentManagementML.Application/DocumentManagementML.Application.csproj",
+        "projectName": "DocumentManagementML.Application",
+        "projectPath": "/home/administrator/nodejs/DocumentManagementML/src/DocumentManagementML.Application/DocumentManagementML.Application.csproj",
+        "packagesPath": "/home/administrator/.nuget/packages/",
+        "outputPath": "/home/administrator/nodejs/DocumentManagementML/src/DocumentManagementML.Application/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/home/administrator/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net9.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net9.0": {
+            "targetAlias": "net9.0",
+            "projectReferences": {
+              "/home/administrator/nodejs/DocumentManagementML/src/DocumentManagementML.Domain/DocumentManagementML.Domain.csproj": {
+                "projectPath": "/home/administrator/nodejs/DocumentManagementML/src/DocumentManagementML.Domain/DocumentManagementML.Domain.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        }
+      },
+      "frameworks": {
+        "net9.0": {
+          "targetAlias": "net9.0",
+          "dependencies": {
+            "AutoMapper": {
+              "target": "Package",
+              "version": "[12.0.1, )"
+            },
+            "AutoMapper.Extensions.Microsoft.DependencyInjection": {
+              "target": "Package",
+              "version": "[12.0.1, )"
+            },
+            "Microsoft.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[9.0.4, )"
+            },
+            "Microsoft.Extensions.Logging.Abstractions": {
+              "target": "Package",
+              "version": "[9.0.4, )"
+            },
+            "System.ComponentModel.Annotations": {
+              "target": "Package",
+              "version": "[5.0.0, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/home/administrator/.dotnet/sdk/9.0.100-preview.1.24101.2/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "/home/administrator/nodejs/DocumentManagementML/src/DocumentManagementML.Domain/DocumentManagementML.Domain.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/home/administrator/nodejs/DocumentManagementML/src/DocumentManagementML.Domain/DocumentManagementML.Domain.csproj",
+        "projectName": "DocumentManagementML.Domain",
+        "projectPath": "/home/administrator/nodejs/DocumentManagementML/src/DocumentManagementML.Domain/DocumentManagementML.Domain.csproj",
+        "packagesPath": "/home/administrator/.nuget/packages/",
+        "outputPath": "/home/administrator/nodejs/DocumentManagementML/src/DocumentManagementML.Domain/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/home/administrator/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net9.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net9.0": {
+            "targetAlias": "net9.0",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        }
+      },
+      "frameworks": {
+        "net9.0": {
+          "targetAlias": "net9.0",
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/home/administrator/.dotnet/sdk/9.0.100-preview.1.24101.2/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "/home/administrator/nodejs/DocumentManagementML/src/DocumentManagementML.Infrastructure/DocumentManagementML.Infrastructure.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/home/administrator/nodejs/DocumentManagementML/src/DocumentManagementML.Infrastructure/DocumentManagementML.Infrastructure.csproj",
+        "projectName": "DocumentManagementML.Infrastructure",
+        "projectPath": "/home/administrator/nodejs/DocumentManagementML/src/DocumentManagementML.Infrastructure/DocumentManagementML.Infrastructure.csproj",
+        "packagesPath": "/home/administrator/.nuget/packages/",
+        "outputPath": "/home/administrator/nodejs/DocumentManagementML/src/DocumentManagementML.Infrastructure/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/home/administrator/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net9.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net9.0": {
+            "targetAlias": "net9.0",
+            "projectReferences": {
+              "/home/administrator/nodejs/DocumentManagementML/src/DocumentManagementML.Application/DocumentManagementML.Application.csproj": {
+                "projectPath": "/home/administrator/nodejs/DocumentManagementML/src/DocumentManagementML.Application/DocumentManagementML.Application.csproj"
+              },
+              "/home/administrator/nodejs/DocumentManagementML/src/DocumentManagementML.Domain/DocumentManagementML.Domain.csproj": {
+                "projectPath": "/home/administrator/nodejs/DocumentManagementML/src/DocumentManagementML.Domain/DocumentManagementML.Domain.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        }
+      },
+      "frameworks": {
+        "net9.0": {
+          "targetAlias": "net9.0",
+          "dependencies": {
+            "Microsoft.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[9.0.4, )"
+            },
+            "Microsoft.EntityFrameworkCore.SqlServer": {
+              "target": "Package",
+              "version": "[9.0.4, )"
+            },
+            "Microsoft.Extensions.Logging.Abstractions": {
+              "target": "Package",
+              "version": "[9.0.4, )"
+            },
+            "Microsoft.Extensions.Options": {
+              "target": "Package",
+              "version": "[9.0.4, )"
+            },
+            "Microsoft.ML": {
+              "target": "Package",
+              "version": "[3.0.0, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/home/administrator/.dotnet/sdk/9.0.100-preview.1.24101.2/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "/home/administrator/nodejs/DocumentManagementML/src/DocumentManagementML.Shared/DocumentManagementML.Shared.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/home/administrator/nodejs/DocumentManagementML/src/DocumentManagementML.Shared/DocumentManagementML.Shared.csproj",
+        "projectName": "DocumentManagementML.Shared",
+        "projectPath": "/home/administrator/nodejs/DocumentManagementML/src/DocumentManagementML.Shared/DocumentManagementML.Shared.csproj",
+        "packagesPath": "/home/administrator/.nuget/packages/",
+        "outputPath": "/home/administrator/nodejs/DocumentManagementML/src/DocumentManagementML.Shared/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/home/administrator/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net9.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net9.0": {
+            "targetAlias": "net9.0",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        }
+      },
+      "frameworks": {
+        "net9.0": {
+          "targetAlias": "net9.0",
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/home/administrator/.dotnet/sdk/9.0.100-preview.1.24101.2/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}

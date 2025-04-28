@@ -1,0 +1,81 @@
+digraph G {
+    compound=true;
+    node [shape=box, style=filled, fillcolor=lightgray];
+    rankdir="TB";
+
+    # Client and Load Balancer
+    Client [label="Client Browser", shape=box3d];
+    LB [label="Load Balancer", shape=diamond];
+
+    subgraph cluster_network {
+        label="Internal Network";
+        style=filled;
+        color=azure;
+
+        subgraph cluster_app_servers {
+            label="Application Servers";
+            style=filled;
+            color=lightblue;
+            node [style=filled, fillcolor=white];
+            Web1 [label="Web Server 1"];
+            Web2 [label="Web Server 2"];
+            API1 [label="API Server 1"];
+            API2 [label="API Server 2"];
+            ML1 [label="ML Server 1"];
+            ML2 [label="ML Server 2"];
+        }
+
+        subgraph cluster_db_servers {
+            label="Database Servers";
+            style=filled;
+            color=lightgreen;
+            node [style=filled, fillcolor=white, shape=cylinder];
+            Primary [label="Primary SQL"];
+            Secondary [label="Secondary SQL"];
+        }
+
+        subgraph cluster_storage {
+            label="Storage Layer";
+            style=filled;
+            color=lightyellow;
+            node [style=filled, fillcolor=white];
+            MinIO1 [label="MinIO Node 1", shape=cylinder];
+            MinIO2 [label="MinIO Node 2", shape=cylinder];
+            NAS [label="Network Storage", shape=cylinder];
+        }
+
+        subgraph cluster_monitoring {
+            label="Monitoring Stack";
+            style=filled;
+            color=lightpink;
+            node [style=filled, fillcolor=white];
+            Prometheus [label="Prometheus"];
+            Grafana [label="Grafana"];
+            ELK [label="ELK Stack"];
+        }
+    }
+
+    # Connections
+    Client -> LB;
+    LB -> {Web1 Web2};
+    {Web1 Web2} -> {API1 API2};
+    {API1 API2} -> Primary;
+    Primary -> Secondary;
+    {API1 API2} -> {MinIO1 MinIO2};
+    {MinIO1 MinIO2} -> NAS;
+    {API1 API2} -> {ML1 ML2};
+    {ML1 ML2} -> Primary;
+
+    # Monitoring Connections
+    {Web1 Web2 API1 API2 ML1 ML2} -> Prometheus;
+    Prometheus -> Grafana;
+    ELK -> Grafana;
+
+    # Rank settings for proper layout
+    { rank=same; Web1 Web2 }
+    { rank=same; API1 API2 }
+    { rank=same; ML1 ML2 }
+    { rank=same; MinIO1 MinIO2 }
+    { rank=same; Primary Secondary }
+    { rank=same; Prometheus ELK }
+}

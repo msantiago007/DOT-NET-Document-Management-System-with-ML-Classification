@@ -1,0 +1,12 @@
+{
+  "Version": 1,
+  "Hash": "qSsPatKAzazYQ/ToWcHVxrm6P2KomKwV6hE3C46NvFo=",
+  "Source": "DocumentManagementML.API",
+  "BasePath": "_content/DocumentManagementML.API",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": [],
+  "Endpoints": []
+}
