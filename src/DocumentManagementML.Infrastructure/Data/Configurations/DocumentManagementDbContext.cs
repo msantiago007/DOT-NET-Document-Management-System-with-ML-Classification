@@ -1,4 +1,15 @@
-// DocumentManagementDbContext.cs
+// -----------------------------------------------------------------------------
+// <copyright file="DocumentManagementDbContext.cs" company="Marco Santiago">
+//     Copyright (c) 2025 Marco Santiago. All rights reserved.
+//     Proprietary and confidential.
+// </copyright>
+// -----------------------------------------------------------------------------
+// Author(s):          Marco Santiago
+// Created:            February 22, 2025
+// Last Modified:      April 30, 2025
+// Version:            0.9.0
+// Description:        Entity Framework Core database context for Document Management
+// -----------------------------------------------------------------------------
 using DocumentManagementML.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -53,6 +64,11 @@ namespace DocumentManagementML.Infrastructure.Data
         /// Gets or sets the topics DbSet
         /// </summary>
         public DbSet<Topic> Topics { get; set; } = null!;
+        
+        /// <summary>
+        /// Gets or sets the refresh tokens DbSet
+        /// </summary>
+        public DbSet<RefreshToken> RefreshTokens { get; set; } = null!;
 
         /// <summary>
         /// Configures the model and entity mappings
@@ -69,12 +85,13 @@ namespace DocumentManagementML.Infrastructure.Data
             modelBuilder.Entity<User>(entity =>
             {
                 entity.ToTable("Users");
-                entity.HasKey(e => e.UserId);
+                entity.HasKey(e => e.Id);
                 entity.Property(e => e.Username).IsRequired().HasMaxLength(50);
                 entity.Property(e => e.Email).IsRequired().HasMaxLength(100);
                 entity.Property(e => e.PasswordHash).IsRequired();
                 entity.Property(e => e.FirstName).HasMaxLength(50);
                 entity.Property(e => e.LastName).HasMaxLength(50);
+                entity.Property(e => e.IsAdmin).HasDefaultValue(false);
                 entity.HasIndex(e => e.Username).IsUnique();
                 entity.HasIndex(e => e.Email).IsUnique();
             });
@@ -167,6 +184,25 @@ namespace DocumentManagementML.Infrastructure.Data
                       .HasForeignKey(t => t.ParentTopicId);
                 
                 entity.HasIndex(e => e.TopicName).IsUnique();
+            });
+            
+            // Configure RefreshToken entity
+            modelBuilder.Entity<RefreshToken>(entity =>
+            {
+                entity.ToTable("RefreshTokens");
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Token).IsRequired().HasMaxLength(255);
+                entity.Property(e => e.JwtId).HasMaxLength(255);
+                entity.Property(e => e.CreatedAt).IsRequired();
+                entity.Property(e => e.ExpiresAt).IsRequired();
+                
+                entity.HasOne(r => r.User)
+                      .WithMany(u => u.RefreshTokens)
+                      .HasForeignKey(r => r.UserId)
+                      .OnDelete(DeleteBehavior.Cascade);
+                
+                entity.HasIndex(e => e.Token).IsUnique();
+                entity.HasIndex(e => e.UserId);
             });
         }
     }

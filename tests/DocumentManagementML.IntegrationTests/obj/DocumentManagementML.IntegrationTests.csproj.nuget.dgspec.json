@@ -5,7 +5,7 @@
   },
   "projects": {
     "/home/administrator/nodejs/DocumentManagementML/src/DocumentManagementML.API/DocumentManagementML.API.csproj": {
-      "version": "1.0.0",
+      "version": "0.9.0",
       "restore": {
         "projectUniqueName": "/home/administrator/nodejs/DocumentManagementML/src/DocumentManagementML.API/DocumentManagementML.API.csproj",
         "projectName": "DocumentManagementML.API",
@@ -47,15 +47,36 @@
           "enableAudit": "true",
           "auditLevel": "low",
           "auditMode": "direct"
-        }
+        },
+        "SdkAnalysisLevel": "9.0.200"
       },
       "frameworks": {
         "net9.0": {
           "targetAlias": "net9.0",
           "dependencies": {
+            "FluentValidation": {
+              "target": "Package",
+              "version": "[11.9.0, )"
+            },
+            "FluentValidation.AspNetCore": {
+              "target": "Package",
+              "version": "[11.3.0, )"
+            },
             "Microsoft.AspNetCore.OpenApi": {
               "target": "Package",
               "version": "[9.0.0, )"
+            },
+            "Microsoft.EntityFrameworkCore.InMemory": {
+              "target": "Package",
+              "version": "[9.0.4, )"
+            },
+            "Microsoft.EntityFrameworkCore.SqlServer": {
+              "target": "Package",
+              "version": "[9.0.4, )"
+            },
+            "Swashbuckle.AspNetCore": {
+              "target": "Package",
+              "version": "[6.5.0, )"
             }
           },
           "imports": [
@@ -77,12 +98,12 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/home/administrator/.dotnet/sdk/9.0.100-preview.1.24101.2/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/home/administrator/.dotnet/sdk/9.0.203/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
     "/home/administrator/nodejs/DocumentManagementML/src/DocumentManagementML.Application/DocumentManagementML.Application.csproj": {
-      "version": "1.0.0",
+      "version": "0.9.0",
       "restore": {
         "projectUniqueName": "/home/administrator/nodejs/DocumentManagementML/src/DocumentManagementML.Application/DocumentManagementML.Application.csproj",
         "projectName": "DocumentManagementML.Application",
@@ -118,7 +139,8 @@
           "enableAudit": "true",
           "auditLevel": "low",
           "auditMode": "direct"
-        }
+        },
+        "SdkAnalysisLevel": "9.0.200"
       },
       "frameworks": {
         "net9.0": {
@@ -161,12 +183,12 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/home/administrator/.dotnet/sdk/9.0.100-preview.1.24101.2/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/home/administrator/.dotnet/sdk/9.0.203/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
     "/home/administrator/nodejs/DocumentManagementML/src/DocumentManagementML.Domain/DocumentManagementML.Domain.csproj": {
-      "version": "1.0.0",
+      "version": "0.9.0",
       "restore": {
         "projectUniqueName": "/home/administrator/nodejs/DocumentManagementML/src/DocumentManagementML.Domain/DocumentManagementML.Domain.csproj",
         "projectName": "DocumentManagementML.Domain",
@@ -198,7 +220,8 @@
           "enableAudit": "true",
           "auditLevel": "low",
           "auditMode": "direct"
-        }
+        },
+        "SdkAnalysisLevel": "9.0.200"
       },
       "frameworks": {
         "net9.0": {
@@ -219,12 +242,12 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/home/administrator/.dotnet/sdk/9.0.100-preview.1.24101.2/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/home/administrator/.dotnet/sdk/9.0.203/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
     "/home/administrator/nodejs/DocumentManagementML/src/DocumentManagementML.Infrastructure/DocumentManagementML.Infrastructure.csproj": {
-      "version": "1.0.0",
+      "version": "0.9.0",
       "restore": {
         "projectUniqueName": "/home/administrator/nodejs/DocumentManagementML/src/DocumentManagementML.Infrastructure/DocumentManagementML.Infrastructure.csproj",
         "projectName": "DocumentManagementML.Infrastructure",
@@ -263,7 +286,8 @@
           "enableAudit": "true",
           "auditLevel": "low",
           "auditMode": "direct"
-        }
+        },
+        "SdkAnalysisLevel": "9.0.200"
       },
       "frameworks": {
         "net9.0": {
@@ -306,12 +330,12 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/home/administrator/.dotnet/sdk/9.0.100-preview.1.24101.2/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/home/administrator/.dotnet/sdk/9.0.203/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
     "/home/administrator/nodejs/DocumentManagementML/src/DocumentManagementML.Shared/DocumentManagementML.Shared.csproj": {
-      "version": "1.0.0",
+      "version": "0.9.0",
       "restore": {
         "projectUniqueName": "/home/administrator/nodejs/DocumentManagementML/src/DocumentManagementML.Shared/DocumentManagementML.Shared.csproj",
         "projectName": "DocumentManagementML.Shared",
@@ -343,7 +367,8 @@
           "enableAudit": "true",
           "auditLevel": "low",
           "auditMode": "direct"
-        }
+        },
+        "SdkAnalysisLevel": "9.0.200"
       },
       "frameworks": {
         "net9.0": {
@@ -364,12 +389,12 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/home/administrator/.dotnet/sdk/9.0.100-preview.1.24101.2/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/home/administrator/.dotnet/sdk/9.0.203/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
     "/home/administrator/nodejs/DocumentManagementML/tests/DocumentManagementML.IntegrationTests/DocumentManagementML.IntegrationTests.csproj": {
-      "version": "1.0.0",
+      "version": "0.9.0",
       "restore": {
         "projectUniqueName": "/home/administrator/nodejs/DocumentManagementML/tests/DocumentManagementML.IntegrationTests/DocumentManagementML.IntegrationTests.csproj",
         "projectName": "DocumentManagementML.IntegrationTests",
@@ -405,7 +430,8 @@
           "enableAudit": "true",
           "auditLevel": "low",
           "auditMode": "direct"
-        }
+        },
+        "SdkAnalysisLevel": "9.0.200"
       },
       "frameworks": {
         "net9.0": {
@@ -444,7 +470,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/home/administrator/.dotnet/sdk/9.0.100-preview.1.24101.2/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/home/administrator/.dotnet/sdk/9.0.203/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

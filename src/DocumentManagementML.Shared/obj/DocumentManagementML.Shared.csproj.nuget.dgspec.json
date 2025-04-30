@@ -5,7 +5,7 @@
   },
   "projects": {
     "/home/administrator/nodejs/DocumentManagementML/src/DocumentManagementML.Shared/DocumentManagementML.Shared.csproj": {
-      "version": "1.0.0",
+      "version": "0.9.0",
       "restore": {
         "projectUniqueName": "/home/administrator/nodejs/DocumentManagementML/src/DocumentManagementML.Shared/DocumentManagementML.Shared.csproj",
         "projectName": "DocumentManagementML.Shared",
@@ -37,7 +37,8 @@
           "enableAudit": "true",
           "auditLevel": "low",
           "auditMode": "direct"
-        }
+        },
+        "SdkAnalysisLevel": "9.0.200"
       },
       "frameworks": {
         "net9.0": {
@@ -58,7 +59,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/home/administrator/.dotnet/sdk/9.0.100-preview.1.24101.2/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/home/administrator/.dotnet/sdk/9.0.203/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

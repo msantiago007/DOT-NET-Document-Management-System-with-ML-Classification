@@ -32,6 +32,7 @@
     <ProjectReference Include="..\..\src\DocumentManagementML.Domain\DocumentManagementML.Domain.csproj" />
     <ProjectReference Include="..\..\src\DocumentManagementML.Application\DocumentManagementML.Application.csproj" />
     <ProjectReference Include="..\..\src\DocumentManagementML.Infrastructure\DocumentManagementML.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\DocumentManagementML.API\DocumentManagementML.API.csproj" />
   </ItemGroup>
 
 </Project>

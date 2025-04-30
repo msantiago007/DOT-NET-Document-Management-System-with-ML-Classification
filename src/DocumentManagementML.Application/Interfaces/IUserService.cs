@@ -1,8 +1,20 @@
-// IUserService.cs
+// -----------------------------------------------------------------------------
+// <copyright file="IUserService.cs" company="Marco Santiago">
+//     Copyright (c) 2025 Marco Santiago. All rights reserved.
+//     Proprietary and confidential.
+// </copyright>
+// -----------------------------------------------------------------------------
+// Author(s):          Marco Santiago
+// Created:            April 30, 2025
+// Last Modified:      April 30, 2025
+// Version:            0.9.0
+// Description:        Service interface for user operations
+// -----------------------------------------------------------------------------
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using DocumentManagementML.Application.DTOs;
+using DocumentManagementML.Domain.Entities;
 
 namespace DocumentManagementML.Application.Interfaces
 {
@@ -11,6 +23,21 @@ namespace DocumentManagementML.Application.Interfaces
     /// </summary>
     public interface IUserService
     {
+        /// <summary>
+        /// Creates a new user with the given DTO and password
+        /// </summary>
+        /// <param name="userDto">User DTO</param>
+        /// <param name="password">User password</param>
+        /// <returns>Created user entity</returns>
+        Task<User> CreateUserAsync(UserDto userDto, string password);
+        
+        /// <summary>
+        /// Validates user credentials
+        /// </summary>
+        /// <param name="usernameOrEmail">Username or email</param>
+        /// <param name="password">Password</param>
+        /// <returns>User entity if validation succeeds, null otherwise</returns>
+        Task<User?> ValidateUserAsync(string usernameOrEmail, string password);
         /// <summary>
         /// Gets a user by its identifier
         /// </summary>

@@ -12,6 +12,7 @@
 // -----------------------------------------------------------------------------
 using DocumentManagementML.Application.DTOs;
 using DocumentManagementML.Application.Exceptions;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
@@ -35,6 +36,23 @@ namespace DocumentManagementML.API.Controllers
         protected BaseApiController(ILogger logger)
         {
             Logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        }
+        
+        /// <summary>
+        /// Creates an AcceptedAtAction result with standardized response
+        /// </summary>
+        /// <param name="actionName">Action name</param>
+        /// <param name="controllerName">Controller name</param>
+        /// <param name="routeValues">Route values</param>
+        /// <param name="message">Success message</param>
+        /// <returns>AcceptedAtAction result with standardized response</returns>
+        protected AcceptedAtActionResult AcceptedAtAction(string actionName, string controllerName, object routeValues, string message)
+        {
+            return base.AcceptedAtAction(
+                actionName, 
+                controllerName, 
+                routeValues, 
+                ResponseDto.Ok(message));
         }
 
         /// <summary>
@@ -62,18 +80,41 @@ namespace DocumentManagementML.API.Controllers
             catch (ValidationException ex)
             {
                 Logger.LogWarning(ex, errorMessage);
-                return BadRequest(ResponseDto.Fail(ex.Message, ex.Errors.Count > 0 ? 
-                    new System.Collections.Generic.List<string>(ex.Errors.Keys) : null));
+                var problemDetails = new ValidationProblemDetails(ex.Errors)
+                {
+                    Status = StatusCodes.Status400BadRequest,
+                    Type = "https://tools.ietf.org/html/rfc7231#section-6.5.1",
+                    Title = "Validation error",
+                    Detail = ex.Message,
+                    Instance = HttpContext.Request.Path
+                };
+                return BadRequest(problemDetails);
             }
             catch (NotFoundException ex)
             {
                 Logger.LogWarning(ex, errorMessage);
-                return NotFound(ResponseDto.Fail(ex.Message));
+                var problemDetails = new ProblemDetails
+                {
+                    Status = StatusCodes.Status404NotFound,
+                    Type = "https://tools.ietf.org/html/rfc7231#section-6.5.4",
+                    Title = "Resource not found",
+                    Detail = ex.Message,
+                    Instance = HttpContext.Request.Path
+                };
+                return NotFound(problemDetails);
             }
             catch (Exception ex)
             {
                 Logger.LogError(ex, errorMessage);
-                return StatusCode(500, ResponseDto.Fail("An error occurred while processing the request"));
+                var problemDetails = new ProblemDetails
+                {
+                    Status = StatusCodes.Status500InternalServerError,
+                    Type = "https://tools.ietf.org/html/rfc7231#section-6.6.1",
+                    Title = "An unexpected error occurred",
+                    Detail = "An error occurred while processing your request. Please try again later.",
+                    Instance = HttpContext.Request.Path
+                };
+                return StatusCode(500, problemDetails);
             }
         }
         
@@ -103,18 +144,41 @@ namespace DocumentManagementML.API.Controllers
             catch (ValidationException ex)
             {
                 Logger.LogWarning(ex, errorMessage);
-                return BadRequest(ResponseDto.Fail(ex.Message, ex.Errors.Count > 0 ? 
-                    new System.Collections.Generic.List<string>(ex.Errors.Keys) : null));
+                var problemDetails = new ValidationProblemDetails(ex.Errors)
+                {
+                    Status = StatusCodes.Status400BadRequest,
+                    Type = "https://tools.ietf.org/html/rfc7231#section-6.5.1",
+                    Title = "Validation error",
+                    Detail = ex.Message,
+                    Instance = HttpContext.Request.Path
+                };
+                return BadRequest(problemDetails);
             }
             catch (NotFoundException ex)
             {
                 Logger.LogWarning(ex, errorMessage);
-                return NotFound(ResponseDto.Fail(ex.Message));
+                var problemDetails = new ProblemDetails
+                {
+                    Status = StatusCodes.Status404NotFound,
+                    Type = "https://tools.ietf.org/html/rfc7231#section-6.5.4",
+                    Title = "Resource not found",
+                    Detail = ex.Message,
+                    Instance = HttpContext.Request.Path
+                };
+                return NotFound(problemDetails);
             }
             catch (Exception ex)
             {
                 Logger.LogError(ex, errorMessage);
-                return StatusCode(500, ResponseDto.Fail("An error occurred while processing the request"));
+                var problemDetails = new ProblemDetails
+                {
+                    Status = StatusCodes.Status500InternalServerError,
+                    Type = "https://tools.ietf.org/html/rfc7231#section-6.6.1",
+                    Title = "An unexpected error occurred",
+                    Detail = "An error occurred while processing your request. Please try again later.",
+                    Instance = HttpContext.Request.Path
+                };
+                return StatusCode(500, problemDetails);
             }
         }
         
@@ -138,18 +202,41 @@ namespace DocumentManagementML.API.Controllers
             catch (ValidationException ex)
             {
                 Logger.LogWarning(ex, errorMessage);
-                return BadRequest(ResponseDto.Fail(ex.Message, ex.Errors.Count > 0 ? 
-                    new System.Collections.Generic.List<string>(ex.Errors.Keys) : null));
+                var problemDetails = new ValidationProblemDetails(ex.Errors)
+                {
+                    Status = StatusCodes.Status400BadRequest,
+                    Type = "https://tools.ietf.org/html/rfc7231#section-6.5.1",
+                    Title = "Validation error",
+                    Detail = ex.Message,
+                    Instance = HttpContext.Request.Path
+                };
+                return BadRequest(problemDetails);
             }
             catch (NotFoundException ex)
             {
                 Logger.LogWarning(ex, errorMessage);
-                return NotFound(ResponseDto.Fail(ex.Message));
+                var problemDetails = new ProblemDetails
+                {
+                    Status = StatusCodes.Status404NotFound,
+                    Type = "https://tools.ietf.org/html/rfc7231#section-6.5.4",
+                    Title = "Resource not found",
+                    Detail = ex.Message,
+                    Instance = HttpContext.Request.Path
+                };
+                return NotFound(problemDetails);
             }
             catch (Exception ex)
             {
                 Logger.LogError(ex, errorMessage);
-                return StatusCode(500, ResponseDto.Fail("An error occurred while processing the request"));
+                var problemDetails = new ProblemDetails
+                {
+                    Status = StatusCodes.Status500InternalServerError,
+                    Type = "https://tools.ietf.org/html/rfc7231#section-6.6.1",
+                    Title = "An unexpected error occurred",
+                    Detail = "An error occurred while processing your request. Please try again later.",
+                    Instance = HttpContext.Request.Path
+                };
+                return StatusCode(500, problemDetails);
             }
         }
     }

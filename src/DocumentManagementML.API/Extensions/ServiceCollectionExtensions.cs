@@ -29,7 +29,7 @@ namespace DocumentManagementML.API.Extensions
             // Phase 2: Using enhanced services with Unit of Work pattern
             services.AddScoped<IDocumentService, EnhancedDocumentService>();
             services.AddScoped<IDocumentTypeService, EnhancedDocumentTypeService>();
-            services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IUserService, EnhancedUserService>();
             // Use simple implementation for phase 1
             services.AddScoped<IDocumentClassificationService, SimpleDocumentClassificationService>();
             // Add password hasher
@@ -56,9 +56,11 @@ namespace DocumentManagementML.API.Extensions
             // Configure storage settings
             services.Configure<StorageSettings>(configuration.GetSection("Storage"));
 
-            // Register storage services - using simple implementations for phase 1
-            services.AddSingleton<DocumentManagementML.Domain.Services.IFileStorageService, SimpleFileStorageService>();
-            services.AddSingleton<DocumentManagementML.Application.Interfaces.IFileStorageService, ApplicationFileStorageService>();
+            // Register storage services with versioning support for Phase 2
+            services.AddSingleton<DocumentManagementML.Domain.Services.IFileStorageService, VersionedFileStorageService>();
+            services.AddSingleton<DocumentManagementML.Domain.Services.IVersionedFileStorageService, VersionedFileStorageService>();
+            services.AddSingleton<DocumentManagementML.Application.Interfaces.IFileStorageService, VersionedApplicationFileStorageService>();
+            services.AddSingleton<DocumentManagementML.Application.Interfaces.IVersionedFileStorageService, VersionedApplicationFileStorageService>();
 
             return services;
         }
@@ -92,6 +94,7 @@ namespace DocumentManagementML.API.Extensions
             services.AddScoped<IDocumentTypeRepository, DocumentTypeRepository>();
             services.AddScoped<IDocumentMetadataRepository, DocumentMetadataRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
             
             // Register Unit of Work
             services.AddScoped<IUnitOfWorkExtended, UnitOfWork>();

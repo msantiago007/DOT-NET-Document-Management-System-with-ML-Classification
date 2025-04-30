@@ -10,6 +10,18 @@ c:/Projects/DocumentManagementML/src/DocumentManagementML.Domain/obj/Debug/net9.
 c:/Projects/DocumentManagementML/src/DocumentManagementML.Domain/obj/Debug/net9.0/DocumentManagementML.Domain.pdb
 c:/Projects/DocumentManagementML/src/DocumentManagementML.Domain/obj/Debug/net9.0/ref/DocumentManagementML.Domain.dll
 C:/Projects/DocumentManagementML/src/DocumentManagementML.Domain/obj/Debug/net9.0/DocumentManagementML.Domain.sourcelink.json
+//wsl$/Ubuntu/home/administrator/nodejs/DocumentManagementML/src/DocumentManagementML.Domain/bin/Debug/net9.0/DocumentManagementML.Domain.deps.json
+//wsl$/Ubuntu/home/administrator/nodejs/DocumentManagementML/src/DocumentManagementML.Domain/bin/Debug/net9.0/DocumentManagementML.Domain.dll
+//wsl$/Ubuntu/home/administrator/nodejs/DocumentManagementML/src/DocumentManagementML.Domain/bin/Debug/net9.0/DocumentManagementML.Domain.pdb
+//wsl$/Ubuntu/home/administrator/nodejs/DocumentManagementML/src/DocumentManagementML.Domain/obj/Debug/net9.0/DocumentManagementML.Domain.GeneratedMSBuildEditorConfig.editorconfig
+//wsl$/Ubuntu/home/administrator/nodejs/DocumentManagementML/src/DocumentManagementML.Domain/obj/Debug/net9.0/DocumentManagementML.Domain.AssemblyInfoInputs.cache
+//wsl$/Ubuntu/home/administrator/nodejs/DocumentManagementML/src/DocumentManagementML.Domain/obj/Debug/net9.0/DocumentManagementML.Domain.AssemblyInfo.cs
+//wsl$/Ubuntu/home/administrator/nodejs/DocumentManagementML/src/DocumentManagementML.Domain/obj/Debug/net9.0/DocumentManagementML.Domain.csproj.CoreCompileInputs.cache
+//wsl$/Ubuntu/home/administrator/nodejs/DocumentManagementML/src/DocumentManagementML.Domain/obj/Debug/net9.0/DocumentManagementML.Domain.sourcelink.json
+//wsl$/Ubuntu/home/administrator/nodejs/DocumentManagementML/src/DocumentManagementML.Domain/obj/Debug/net9.0/DocumentManagementML.Domain.dll
+//wsl$/Ubuntu/home/administrator/nodejs/DocumentManagementML/src/DocumentManagementML.Domain/obj/Debug/net9.0/refint/DocumentManagementML.Domain.dll
+//wsl$/Ubuntu/home/administrator/nodejs/DocumentManagementML/src/DocumentManagementML.Domain/obj/Debug/net9.0/DocumentManagementML.Domain.pdb
+//wsl$/Ubuntu/home/administrator/nodejs/DocumentManagementML/src/DocumentManagementML.Domain/obj/Debug/net9.0/ref/DocumentManagementML.Domain.dll
 /home/administrator/nodejs/DocumentManagementML/src/DocumentManagementML.Domain/bin/Debug/net9.0/DocumentManagementML.Domain.deps.json
 /home/administrator/nodejs/DocumentManagementML/src/DocumentManagementML.Domain/bin/Debug/net9.0/DocumentManagementML.Domain.dll
 /home/administrator/nodejs/DocumentManagementML/src/DocumentManagementML.Domain/bin/Debug/net9.0/DocumentManagementML.Domain.pdb
@@ -17,6 +29,7 @@ C:/Projects/DocumentManagementML/src/DocumentManagementML.Domain/obj/Debug/net9.
 /home/administrator/nodejs/DocumentManagementML/src/DocumentManagementML.Domain/obj/Debug/net9.0/DocumentManagementML.Domain.AssemblyInfoInputs.cache
 /home/administrator/nodejs/DocumentManagementML/src/DocumentManagementML.Domain/obj/Debug/net9.0/DocumentManagementML.Domain.AssemblyInfo.cs
 /home/administrator/nodejs/DocumentManagementML/src/DocumentManagementML.Domain/obj/Debug/net9.0/DocumentManagementML.Domain.csproj.CoreCompileInputs.cache
+/home/administrator/nodejs/DocumentManagementML/src/DocumentManagementML.Domain/obj/Debug/net9.0/DocumentManagementML.Domain.sourcelink.json
 /home/administrator/nodejs/DocumentManagementML/src/DocumentManagementML.Domain/obj/Debug/net9.0/DocumentManagementML.Domain.dll
 /home/administrator/nodejs/DocumentManagementML/src/DocumentManagementML.Domain/obj/Debug/net9.0/refint/DocumentManagementML.Domain.dll
 /home/administrator/nodejs/DocumentManagementML/src/DocumentManagementML.Domain/obj/Debug/net9.0/DocumentManagementML.Domain.pdb

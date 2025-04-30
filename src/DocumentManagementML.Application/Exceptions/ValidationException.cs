@@ -12,6 +12,7 @@
 // -----------------------------------------------------------------------------
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace DocumentManagementML.Application.Exceptions
 {
@@ -45,6 +46,18 @@ namespace DocumentManagementML.Application.Exceptions
         }
 
         /// <summary>
+        /// Initializes a new instance of the ValidationException class with specified errors
+        /// </summary>
+        /// <param name="errors">Dictionary of validation errors with collections of error messages</param>
+        public ValidationException(IDictionary<string, List<string>> errors)
+            : this()
+        {
+            Errors = errors.ToDictionary(
+                kvp => kvp.Key,
+                kvp => kvp.Value.ToArray());
+        }
+
+        /// <summary>
         /// Initializes a new instance of the ValidationException class with a specified property and error
         /// </summary>
         /// <param name="propertyName">Name of the property with the validation error</param>
@@ -69,6 +82,35 @@ namespace DocumentManagementML.Application.Exceptions
             {
                 { "General", new[] { errorMessage } }
             };
+        }
+
+        /// <summary>
+        /// Gets a flat list of all error messages
+        /// </summary>
+        /// <returns>List of all error messages</returns>
+        public List<string> GetAllErrorMessages()
+        {
+            var messages = new List<string>();
+            
+            foreach (var error in Errors)
+            {
+                foreach (var message in error.Value)
+                {
+                    messages.Add($"{error.Key}: {message}");
+                }
+            }
+            
+            return messages;
+        }
+
+        /// <summary>
+        /// Gets all error messages as a single string
+        /// </summary>
+        /// <param name="separator">Separator between messages</param>
+        /// <returns>String containing all error messages</returns>
+        public string GetErrorString(string separator = "; ")
+        {
+            return string.Join(separator, GetAllErrorMessages());
         }
     }
 }

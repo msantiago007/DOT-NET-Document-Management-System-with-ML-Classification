@@ -1,4 +1,15 @@
-// src/DocumentManagementML.Domain/Entities/User.cs
+// -----------------------------------------------------------------------------
+// <copyright file="User.cs" company="Marco Santiago">
+//     Copyright (c) 2025 Marco Santiago. All rights reserved.
+//     Proprietary and confidential.
+// </copyright>
+// -----------------------------------------------------------------------------
+// Author(s):          Marco Santiago
+// Created:            February 22, 2025
+// Last Modified:      April 30, 2025
+// Version:            0.9.0
+// Description:        Entity representing a user in the system
+// -----------------------------------------------------------------------------
 using System;
 using System.Collections.Generic;
 
@@ -36,7 +47,15 @@ namespace DocumentManagementML.Domain.Entities
         /// <summary>
         /// Gets or sets the unique identifier for the user.
         /// </summary>
-        public Guid UserId { get; set; }
+        public Guid Id { get; set; }
+        
+        /// <summary>
+        /// Gets or sets the unique identifier for the user (legacy property).
+        /// </summary>
+        public Guid UserId { 
+            get => Id; 
+            set => Id = value; 
+        }
 
         /// <summary>
         /// Gets or sets the username used for authentication.
@@ -70,6 +89,16 @@ namespace DocumentManagementML.Domain.Entities
         /// Inactive users cannot access the system.
         /// </summary>
         public bool IsActive { get; set; } = true;
+        
+        /// <summary>
+        /// Gets or sets a value indicating whether the user is an administrator.
+        /// </summary>
+        public bool IsAdmin { get; set; } = false;
+        
+        /// <summary>
+        /// Gets or sets the refresh tokens associated with this user.
+        /// </summary>
+        public virtual ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
 
         /// <summary>
         /// Gets or sets the date and time when the user account was created.

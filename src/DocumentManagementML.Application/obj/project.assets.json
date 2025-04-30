@@ -244,7 +244,7 @@
           }
         }
       },
-      "DocumentManagementML.Domain/1.0.0": {
+      "DocumentManagementML.Domain/0.9.0": {
         "type": "project",
         "framework": ".NETCoreApp,Version=v9.0",
         "compile": {
@@ -780,7 +780,7 @@
         "version.txt"
       ]
     },
-    "DocumentManagementML.Domain/1.0.0": {
+    "DocumentManagementML.Domain/0.9.0": {
       "type": "project",
       "path": "../DocumentManagementML.Domain/DocumentManagementML.Domain.csproj",
       "msbuildProject": "../DocumentManagementML.Domain/DocumentManagementML.Domain.csproj"
@@ -790,7 +790,7 @@
     "net9.0": [
       "AutoMapper >= 12.0.1",
       "AutoMapper.Extensions.Microsoft.DependencyInjection >= 12.0.1",
-      "DocumentManagementML.Domain >= 1.0.0",
+      "DocumentManagementML.Domain >= 0.9.0",
       "Microsoft.EntityFrameworkCore >= 9.0.4",
       "Microsoft.Extensions.Logging.Abstractions >= 9.0.4",
       "System.ComponentModel.Annotations >= 5.0.0"
@@ -800,7 +800,7 @@
     "/home/administrator/.nuget/packages/": {}
   },
   "project": {
-    "version": "1.0.0",
+    "version": "0.9.0",
     "restore": {
       "projectUniqueName": "/home/administrator/nodejs/DocumentManagementML/src/DocumentManagementML.Application/DocumentManagementML.Application.csproj",
       "projectName": "DocumentManagementML.Application",
@@ -836,7 +836,8 @@
         "enableAudit": "true",
         "auditLevel": "low",
         "auditMode": "direct"
-      }
+      },
+      "SdkAnalysisLevel": "9.0.200"
     },
     "frameworks": {
       "net9.0": {
@@ -879,7 +880,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "/home/administrator/.dotnet/sdk/9.0.100-preview.1.24101.2/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "/home/administrator/.dotnet/sdk/9.0.203/PortableRuntimeIdentifierGraph.json"
       }
     }
   }
