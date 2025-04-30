@@ -1,4 +1,16 @@
-// DocumentMetadataRepository.cs
+// -----------------------------------------------------------------------------
+// <copyright file="DocumentMetadataRepository.cs" company="Marco Santiago">
+//     Copyright (c) 2025 Marco Santiago. All rights reserved.
+//     Proprietary and confidential.
+// </copyright>
+// -----------------------------------------------------------------------------
+// Author(s):          Marco Santiago
+// Created:            February 22, 2025
+// Last Modified:      April 29, 2025
+// Version:            0.9.0
+// Description:        Repository implementation for DocumentMetadata entity that provides
+//                     storage and retrieval of document metadata key-value pairs.
+// -----------------------------------------------------------------------------
 using DocumentManagementML.Domain.Entities;
 using DocumentManagementML.Domain.Repositories;
 using DocumentManagementML.Infrastructure.Data;

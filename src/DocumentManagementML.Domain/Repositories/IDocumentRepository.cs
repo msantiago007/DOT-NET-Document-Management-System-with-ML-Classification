@@ -1,4 +1,16 @@
-// IDocumentRepository.cs
+// -----------------------------------------------------------------------------
+// <copyright file="IDocumentRepository.cs" company="Marco Santiago">
+//     Copyright (c) 2025 Marco Santiago. All rights reserved.
+//     Proprietary and confidential.
+// </copyright>
+// -----------------------------------------------------------------------------
+// Author(s):          Marco Santiago
+// Created:            February 22, 2025
+// Last Modified:      April 29, 2025
+// Version:            0.9.0
+// Description:        Repository interface for Document entity that defines
+//                     required data access operations for document management.
+// -----------------------------------------------------------------------------
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;

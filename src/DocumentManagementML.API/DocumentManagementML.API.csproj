@@ -4,10 +4,21 @@
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <Version>0.9.0</Version>
+    <AssemblyVersion>0.9.0.0</AssemblyVersion>
+    <FileVersion>0.9.0.0</FileVersion>
+    <Company>Marco Santiago</Company>
+    <Copyright>Copyright (c) 2025 Marco Santiago. All rights reserved.</Copyright>
+    <Description>DocumentManagementML API Layer - Web API endpoints and controllers</Description>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);1591</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="9.0.4" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.4" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
   </ItemGroup>
 
   <ItemGroup>

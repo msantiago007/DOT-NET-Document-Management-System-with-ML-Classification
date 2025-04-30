@@ -9,13 +9,12 @@ using DocumentManagementML.Domain.Repositories;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+// using System.ComponentModel.DataAnnotations; // Removed to avoid ambiguity with ValidationException
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Security.Cryptography;
-using Microsoft.EntityFrameworkCore.Storage;
 
 namespace DocumentManagementML.Application.Services
 {
@@ -81,7 +80,7 @@ namespace DocumentManagementML.Application.Services
 
         public async Task<DocumentDto> CreateDocumentAsync(DocumentCreateDto documentDto, Stream fileStream, string fileName)
         {
-            IDbContextTransaction? transaction = null;
+            ITransaction? transaction = null;
             
             try
             {
@@ -114,7 +113,7 @@ namespace DocumentManagementML.Application.Services
                     var documentType = await _documentTypeRepository.GetByIdAsync(documentDto.DocumentTypeId.Value);
                     if (documentType == null)
                     {
-                        throw new ValidationException($"Document type with ID {documentDto.DocumentTypeId.Value} not found");
+                        throw new Application.Exceptions.ValidationException($"Document type with ID {documentDto.DocumentTypeId.Value} not found");
                     }
                 }
                 
@@ -161,7 +160,7 @@ namespace DocumentManagementML.Application.Services
 
         public async Task<DocumentDto?> UpdateDocumentAsync(Guid id, DocumentUpdateDto documentDto)
         {
-            IDbContextTransaction? transaction = null;
+            ITransaction? transaction = null;
             
             try
             {
@@ -187,7 +186,7 @@ namespace DocumentManagementML.Application.Services
                     var documentType = await _documentTypeRepository.GetByIdAsync(documentDto.DocumentTypeId.Value);
                     if (documentType == null)
                     {
-                        throw new ValidationException($"Document type with ID {documentDto.DocumentTypeId.Value} not found");
+                        throw new Application.Exceptions.ValidationException($"Document type with ID {documentDto.DocumentTypeId.Value} not found");
                     }
                 }
                 
@@ -238,7 +237,7 @@ namespace DocumentManagementML.Application.Services
 
         public async Task<bool> DeleteDocumentAsync(Guid id)
         {
-            IDbContextTransaction? transaction = null;
+            ITransaction? transaction = null;
             
             try
             {

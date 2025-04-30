@@ -4,7 +4,7 @@ using DocumentManagementML.Application.Mapping;
 using DocumentManagementML.Application.Services;
 using DocumentManagementML.Domain.Repositories;
 using DocumentManagementML.Domain.Services;
-using DocumentManagementML.Infrastructure.Data.Configurations;
+using DocumentManagementML.Infrastructure.Data;
 using DocumentManagementML.Infrastructure.ML;
 using DocumentManagementML.Infrastructure.Repositories;
 using DocumentManagementML.Infrastructure.Settings;
@@ -12,7 +12,8 @@ using DocumentManagementML.Infrastructure.Storage;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.EntityFrameworkCore.InMemory;
+// Microsoft.EntityFrameworkCore.InMemory is imported through the package reference
+// in the DocumentManagementML.API.csproj file
 using System;
 
 namespace DocumentManagementML.API.Extensions
@@ -25,11 +26,14 @@ namespace DocumentManagementML.API.Extensions
             services.AddAutoMapper(typeof(MappingProfile).Assembly);
 
             // Register application services
-            services.AddScoped<IDocumentService, DocumentService>();
-            services.AddScoped<IDocumentTypeService, DocumentTypeService>();
+            // Phase 2: Using enhanced services with Unit of Work pattern
+            services.AddScoped<IDocumentService, EnhancedDocumentService>();
+            services.AddScoped<IDocumentTypeService, EnhancedDocumentTypeService>();
             services.AddScoped<IUserService, UserService>();
             // Use simple implementation for phase 1
             services.AddScoped<IDocumentClassificationService, SimpleDocumentClassificationService>();
+            // Add password hasher
+            services.AddSingleton<IPasswordHasher, DocumentManagementML.Infrastructure.Services.SimplePasswordHasher>();
 
             return services;
         }
@@ -88,6 +92,9 @@ namespace DocumentManagementML.API.Extensions
             services.AddScoped<IDocumentTypeRepository, DocumentTypeRepository>();
             services.AddScoped<IDocumentMetadataRepository, DocumentMetadataRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
+            
+            // Register Unit of Work
+            services.AddScoped<IUnitOfWorkExtended, UnitOfWork>();
 
             return services;
         }

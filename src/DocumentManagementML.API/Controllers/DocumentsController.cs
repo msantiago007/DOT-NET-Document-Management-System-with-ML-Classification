@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+using System.ComponentModel.DataAnnotations;
 using DocumentManagementML.Application.DTOs;
 using DocumentManagementML.Application.Exceptions;
 using DocumentManagementML.Application.Interfaces;
@@ -70,22 +71,29 @@ namespace DocumentManagementML.API.Controllers
             }
         }
 
+        public class DocumentUploadModel
+        {
+            [Required]
+            public DocumentCreateDto Document { get; set; }
+            
+            [Required]
+            public IFormFile File { get; set; }
+        }
+
         [HttpPost]
-        public async Task<ActionResult<DocumentDto>> CreateDocument(
-            [FromForm] DocumentCreateDto documentDto,
-            [FromForm] IFormFile file)
+        public async Task<ActionResult<DocumentDto>> CreateDocument([FromForm] DocumentUploadModel model)
         {
             try
             {
-                if (file == null || file.Length == 0)
+                if (model.File == null || model.File.Length == 0)
                 {
                     return BadRequest("No file uploaded");
                 }
 
-                using var stream = file.OpenReadStream();
-                documentDto.FileType = Path.GetExtension(file.FileName).TrimStart('.');
+                using var stream = model.File.OpenReadStream();
+                model.Document.FileType = Path.GetExtension(model.File.FileName).TrimStart('.');
                 
-                var document = await _documentService.CreateDocumentAsync(documentDto, stream, file.FileName);
+                var document = await _documentService.CreateDocumentAsync(model.Document, stream, model.File.FileName);
                 
                 return CreatedAtAction(
                     nameof(GetDocument),
@@ -93,7 +101,7 @@ namespace DocumentManagementML.API.Controllers
                     document
                 );
             }
-            catch (ValidationException ex)
+            catch (Application.Exceptions.ValidationException ex)
             {
                 return BadRequest(ex.Message);
             }
@@ -177,18 +185,24 @@ namespace DocumentManagementML.API.Controllers
             }
         }
 
+        public class ClassifyFileModel
+        {
+            [Required]
+            public IFormFile File { get; set; }
+        }
+
         [HttpPost("classify")]
-        public async Task<ActionResult<DocumentClassificationResultDto>> ClassifyDocument(IFormFile file)
+        public async Task<ActionResult<DocumentClassificationResultDto>> ClassifyDocument([FromForm] ClassifyFileModel model)
         {
             try
             {
-                if (file == null || file.Length == 0)
+                if (model.File == null || model.File.Length == 0)
                 {
                     return BadRequest("No file uploaded");
                 }
 
-                using var stream = file.OpenReadStream();
-                var result = await _classificationService.ClassifyDocumentAsync(stream, file.FileName);
+                using var stream = model.File.OpenReadStream();
+                var result = await _classificationService.ClassifyDocumentAsync(stream, model.File.FileName);
                 
                 return Ok(result);
             }

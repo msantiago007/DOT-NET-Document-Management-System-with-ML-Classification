@@ -1,4 +1,16 @@
-// IDocumentTypeRepository.cs
+// -----------------------------------------------------------------------------
+// <copyright file="IDocumentTypeRepository.cs" company="Marco Santiago">
+//     Copyright (c) 2025 Marco Santiago. All rights reserved.
+//     Proprietary and confidential.
+// </copyright>
+// -----------------------------------------------------------------------------
+// Author(s):          Marco Santiago
+// Created:            February 22, 2025
+// Last Modified:      April 29, 2025
+// Version:            0.9.0
+// Description:        Repository interface for DocumentType entity that defines
+//                     operations for document type management and classification.
+// -----------------------------------------------------------------------------
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -9,13 +21,13 @@ namespace DocumentManagementML.Domain.Repositories
     /// <summary>
     /// Repository interface for DocumentType entity
     /// </summary>
-    public interface IDocumentTypeRepository
+    public interface IDocumentTypeRepository : IRepository<DocumentType>
     {
         /// <summary>
         /// Gets all document types
         /// </summary>
         /// <returns>Collection of document types</returns>
-        Task<IEnumerable<DocumentType>> GetAllAsync();
+        new Task<IEnumerable<DocumentType>> GetAllAsync();
         
         /// <summary>
         /// Gets all document types with pagination
@@ -44,7 +56,7 @@ namespace DocumentManagementML.Domain.Repositories
         /// </summary>
         /// <param name="id">Document type identifier</param>
         /// <returns>Document type</returns>
-        Task<DocumentType?> GetByIdAsync(Guid id);
+        new Task<DocumentType?> GetByIdAsync(Guid id);
         
         /// <summary>
         /// Gets a document type by its name
@@ -65,21 +77,21 @@ namespace DocumentManagementML.Domain.Repositories
         /// </summary>
         /// <param name="documentType">Document type to add</param>
         /// <returns>Added document type</returns>
-        Task<DocumentType> AddAsync(DocumentType documentType);
+        new Task<DocumentType> AddAsync(DocumentType documentType);
         
         /// <summary>
         /// Updates an existing document type
         /// </summary>
         /// <param name="documentType">Document type to update</param>
         /// <returns>Updated document type</returns>
-        Task<DocumentType> UpdateAsync(DocumentType documentType);
+        new Task<DocumentType> UpdateAsync(DocumentType documentType);
         
         /// <summary>
         /// Deletes a document type
         /// </summary>
         /// <param name="id">Document type identifier</param>
         /// <returns>True if the document type was deleted, false otherwise</returns>
-        Task<bool> DeleteAsync(Guid id);
+        new Task<bool> DeleteAsync(Guid id);
         
         /// <summary>
         /// Gets a document type by its identifier including related documents

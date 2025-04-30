@@ -1,4 +1,16 @@
-// src/DocumentManagementML.Domain/Entities/Document.cs
+// -----------------------------------------------------------------------------
+// <copyright file="Document.cs" company="Marco Santiago">
+//     Copyright (c) 2025 Marco Santiago. All rights reserved.
+//     Proprietary and confidential.
+// </copyright>
+// -----------------------------------------------------------------------------
+// Author(s):          Marco Santiago
+// Created:            February 22, 2025
+// Last Modified:      April 29, 2025
+// Version:            0.9.0
+// Description:        Represents a document in the document management system.
+//                     Core entity that supports versions, metadata, and relationships.
+// -----------------------------------------------------------------------------
 using System;
 using System.Collections.Generic;
 
@@ -129,6 +141,22 @@ namespace DocumentManagementML.Domain.Entities
         /// Gets or sets the metadata dictionary for the document.
         /// </summary>
         public ICollection<DocumentMetadata> MetadataItems { get; set; } = new List<DocumentMetadata>();
+        
+        /// <summary>
+        /// Gets a dictionary representation of the metadata items.
+        /// </summary>
+        public Dictionary<string, string> MetadataDictionary 
+        { 
+            get 
+            {
+                var dict = new Dictionary<string, string>();
+                foreach (var item in MetadataItems)
+                {
+                    dict[item.MetadataKey] = item.MetadataValue;
+                }
+                return dict;
+            }
+        }
 
         /// <summary>
         /// Gets or sets the description of the document.

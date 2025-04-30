@@ -1,4 +1,16 @@
-// UserService.cs
+// -----------------------------------------------------------------------------
+// <copyright file="UserService.cs" company="Marco Santiago">
+//     Copyright (c) 2025 Marco Santiago. All rights reserved.
+//     Proprietary and confidential.
+// </copyright>
+// -----------------------------------------------------------------------------
+// Author(s):          Marco Santiago
+// Created:            February 22, 2025
+// Last Modified:      April 29, 2025
+// Version:            0.9.0
+// Description:        Service implementation for user-related operations including
+//                     authentication, user management, and profile operations.
+// -----------------------------------------------------------------------------
 using AutoMapper;
 using DocumentManagementML.Application.DTOs;
 using DocumentManagementML.Application.Exceptions;
@@ -8,7 +20,7 @@ using DocumentManagementML.Domain.Repositories;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+// using System.ComponentModel.DataAnnotations; // Removed to avoid ambiguity with ValidationException
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -86,14 +98,14 @@ namespace DocumentManagementML.Application.Services
                 var existingUsername = await _userRepository.GetByUsernameAsync(userDto.Username);
                 if (existingUsername != null)
                 {
-                    throw new ValidationException("Username is already taken");
+                    throw new Application.Exceptions.ValidationException("Username is already taken");
                 }
 
                 // Check if email is already taken
                 var existingEmail = await _userRepository.GetByEmailAsync(userDto.Email);
                 if (existingEmail != null)
                 {
-                    throw new ValidationException("Email is already taken");
+                    throw new Application.Exceptions.ValidationException("Email is already taken");
                 }
 
                 _logger.LogInformation($"Creating user: {userDto.Username}");
@@ -115,7 +127,7 @@ namespace DocumentManagementML.Application.Services
                 _logger.LogInformation($"User created with ID: {createdUser.UserId}");
                 return _mapper.Map<UserDto>(createdUser);
             }
-            catch (Exception ex) when (!(ex is ValidationException))
+            catch (Exception ex) when (!(ex is Application.Exceptions.ValidationException))
             {
                 _logger.LogError(ex, $"Error creating user: {ex.Message}");
                 throw new ApplicationException($"Error creating user: {ex.Message}", ex);
@@ -144,7 +156,7 @@ namespace DocumentManagementML.Application.Services
                     var existingUser = await _userRepository.GetByUsernameAsync(userDto.Username);
                     if (existingUser != null && existingUser.UserId.ToString() != id.ToString())
                     {
-                        throw new ValidationException("Username is already taken");
+                        throw new Application.Exceptions.ValidationException("Username is already taken");
                     }
                     
                     user.Username = userDto.Username;
@@ -156,7 +168,7 @@ namespace DocumentManagementML.Application.Services
                     var existingUser = await _userRepository.GetByEmailAsync(userDto.Email);
                     if (existingUser != null && existingUser.UserId.ToString() != id.ToString())
                     {
-                        throw new ValidationException("Email is already taken");
+                        throw new Application.Exceptions.ValidationException("Email is already taken");
                     }
                     
                     user.Email = userDto.Email;
@@ -179,7 +191,7 @@ namespace DocumentManagementML.Application.Services
                 _logger.LogInformation($"User updated: {id}");
                 return _mapper.Map<UserDto>(updatedUser);
             }
-            catch (Exception ex) when (!(ex is ValidationException))
+            catch (Exception ex) when (!(ex is Application.Exceptions.ValidationException))
             {
                 _logger.LogError(ex, $"Error updating user: {ex.Message}");
                 throw new ApplicationException($"Error updating user: {ex.Message}", ex);

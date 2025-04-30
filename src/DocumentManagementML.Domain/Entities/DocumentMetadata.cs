@@ -1,4 +1,16 @@
-// src/DocumentManagementML.Domain/Entities/DocumentMetadata.cs
+// -----------------------------------------------------------------------------
+// <copyright file="DocumentMetadata.cs" company="Marco Santiago">
+//     Copyright (c) 2025 Marco Santiago. All rights reserved.
+//     Proprietary and confidential.
+// </copyright>
+// -----------------------------------------------------------------------------
+// Author(s):          Marco Santiago
+// Created:            February 22, 2025
+// Last Modified:      April 29, 2025
+// Version:            0.9.0
+// Description:        Represents metadata associated with documents as key-value
+//                     pairs for storing additional document information.
+// -----------------------------------------------------------------------------
 using System;
 
 namespace DocumentManagementML.Domain.Entities
@@ -60,6 +72,16 @@ namespace DocumentManagementML.Domain.Entities
         /// Gets or sets the date and time when this metadata was last modified.
         /// </summary>
         public DateTime LastModifiedDate { get; set; } = DateTime.UtcNow;
+
+        /// <summary>
+        /// Gets or sets the key for simpler access in Document.MetadataDictionary.
+        /// </summary>
+        public string Key => MetadataKey;
+
+        /// <summary>
+        /// Gets or sets the value for simpler access in Document.MetadataDictionary.
+        /// </summary>
+        public string Value => MetadataValue;
 
         // Navigation properties
 

@@ -52,6 +52,8 @@ namespace DocumentManagementML.Application.DTOs
         
         public Guid? DocumentTypeId { get; set; }
         
+        public string? FileType { get; set; }
+        
         public Dictionary<string, string>? Metadata { get; set; }
     }
 

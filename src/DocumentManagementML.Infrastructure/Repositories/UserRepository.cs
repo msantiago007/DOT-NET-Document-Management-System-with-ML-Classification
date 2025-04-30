@@ -77,5 +77,14 @@ namespace DocumentManagementML.Infrastructure.Repositories
         {
             return await _dbSet.AnyAsync(u => u.UserId == userId);
         }
+
+        /// <summary>
+        /// Gets the count of active users in the system
+        /// </summary>
+        /// <returns>Count of active users</returns>
+        public async Task<int> GetActiveUsersCountAsync()
+        {
+            return await _dbSet.CountAsync(u => u.IsActive);
+        }
     }
 }

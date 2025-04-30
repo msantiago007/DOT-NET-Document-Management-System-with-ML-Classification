@@ -1,15 +1,26 @@
-// DocumentTypeService.cs
+// -----------------------------------------------------------------------------
+// <copyright file="DocumentTypeService.cs" company="Marco Santiago">
+//     Copyright (c) 2025 Marco Santiago. All rights reserved.
+//     Proprietary and confidential.
+// </copyright>
+// -----------------------------------------------------------------------------
+// Author(s):          Marco Santiago
+// Created:            February 22, 2025
+// Last Modified:      April 29, 2025
+// Version:            0.9.0
+// Description:        Service implementation for document type operations
+// -----------------------------------------------------------------------------
+
 using AutoMapper;
 using DocumentManagementML.Application.DTOs;
 using DocumentManagementML.Application.Exceptions;
 using DocumentManagementML.Application.Interfaces;
 using DocumentManagementML.Domain.Entities;
 using DocumentManagementML.Domain.Repositories;
-using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+// using System.ComponentModel.DataAnnotations; // Removed to avoid ambiguity with ValidationException
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -94,10 +105,11 @@ namespace DocumentManagementML.Application.Services
                 var existingDocumentType = await _documentTypeRepository.GetByNameAsync(documentTypeDto.Name);
                 if (existingDocumentType != null)
                 {
-                    throw new ValidationException($"A document type with the name '{documentTypeDto.Name}' already exists");
+                    throw new Application.Exceptions.ValidationException($"A document type with the name '{documentTypeDto.Name}' already exists");
                 }
 
                 var documentType = _mapper.Map<DocumentType>(documentTypeDto);
+                documentType.TypeName = documentTypeDto.Name.Replace(" ", "").ToLower();
                 documentType.CreatedDate = DateTime.UtcNow;
                 documentType.LastModifiedDate = DateTime.UtcNow;
                 
@@ -119,7 +131,7 @@ namespace DocumentManagementML.Application.Services
         /// <returns>Updated document type DTO</returns>
         public async Task<DocumentTypeDto?> UpdateDocumentTypeAsync(Guid id, DocumentTypeUpdateDto documentTypeDto)
         {
-            IDbContextTransaction? transaction = null;
+            ITransaction? transaction = null;
             
             try
             {
@@ -133,17 +145,18 @@ namespace DocumentManagementML.Application.Services
                 }
 
                 // Check if name is being changed and if new name already exists
-                if (documentTypeDto.Name != existingDocumentType.TypeName)
+                if (documentTypeDto.Name != existingDocumentType.Name)
                 {
                     var nameExists = await _documentTypeRepository.GetByNameAsync(documentTypeDto.Name);
                     if (nameExists != null && nameExists.DocumentTypeId != id)
                     {
-                        throw new ValidationException($"A document type with the name '{documentTypeDto.Name}' already exists");
+                        throw new Application.Exceptions.ValidationException($"A document type with the name '{documentTypeDto.Name}' already exists");
                     }
                 }
 
                 // Update properties
-                existingDocumentType.TypeName = documentTypeDto.Name;
+                existingDocumentType.Name = documentTypeDto.Name;
+                existingDocumentType.TypeName = documentTypeDto.Name.Replace(" ", "").ToLower();
                 existingDocumentType.Description = documentTypeDto.Description;
                 existingDocumentType.IsActive = documentTypeDto.IsActive;
                 existingDocumentType.LastModifiedDate = DateTime.UtcNow;
@@ -175,7 +188,7 @@ namespace DocumentManagementML.Application.Services
         /// <returns>True if the document type was deleted, false otherwise</returns>
         public async Task<bool> DeleteDocumentTypeAsync(Guid id)
         {
-            IDbContextTransaction? transaction = null;
+            ITransaction? transaction = null;
             
             try
             {
@@ -192,7 +205,7 @@ namespace DocumentManagementML.Application.Services
                 var documents = await _documentRepository.GetByDocumentTypeAsync(id);
                 if (documents.Any())
                 {
-                    throw new ValidationException("Cannot delete document type that is in use by documents");
+                    throw new Application.Exceptions.ValidationException("Cannot delete document type that is in use by documents");
                 }
 
                 var result = await _documentTypeRepository.DeleteAsync(id);
@@ -247,7 +260,7 @@ namespace DocumentManagementML.Application.Services
         /// <param name="id">Document type identifier</param>
         public async Task DeactivateDocumentTypeAsync(Guid id)
         {
-            IDbContextTransaction? transaction = null;
+            ITransaction? transaction = null;
             
             try 
             {

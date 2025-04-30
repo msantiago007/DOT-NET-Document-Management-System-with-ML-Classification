@@ -1,4 +1,16 @@
-// DocumentTypeRepository.cs
+// -----------------------------------------------------------------------------
+// <copyright file="DocumentTypeRepository.cs" company="Marco Santiago">
+//     Copyright (c) 2025 Marco Santiago. All rights reserved.
+//     Proprietary and confidential.
+// </copyright>
+// -----------------------------------------------------------------------------
+// Author(s):          Marco Santiago
+// Created:            February 22, 2025
+// Last Modified:      April 29, 2025
+// Version:            0.9.0
+// Description:        Repository implementation for DocumentType entity that provides
+//                     data access operations for document type management.
+// -----------------------------------------------------------------------------
 using DocumentManagementML.Domain.Entities;
 using DocumentManagementML.Domain.Repositories;
 using DocumentManagementML.Infrastructure.Data;
@@ -24,6 +36,104 @@ namespace DocumentManagementML.Infrastructure.Repositories
         public DocumentTypeRepository(DocumentManagementDbContext context) : base(context)
         {
             _dbContext = context;
+        }
+
+        /// <summary>
+        /// Gets all document types
+        /// </summary>
+        /// <returns>Collection of document types</returns>
+        public new async Task<IEnumerable<DocumentType>> GetAllAsync()
+        {
+            return await _dbContext.DocumentTypes
+                .OrderBy(dt => dt.Name)
+                .ToListAsync();
+        }
+
+        /// <summary>
+        /// Gets a document type by its identifier
+        /// </summary>
+        /// <param name="id">Document type identifier</param>
+        /// <returns>Document type if found, null otherwise</returns>
+        public new async Task<DocumentType?> GetByIdAsync(Guid id)
+        {
+            return await _dbContext.DocumentTypes
+                .FirstOrDefaultAsync(dt => dt.DocumentTypeId == id);
+        }
+
+        /// <summary>
+        /// Adds a new document type
+        /// </summary>
+        /// <param name="documentType">Document type to add</param>
+        /// <returns>Added document type</returns>
+        public new async Task<DocumentType> AddAsync(DocumentType documentType)
+        {
+            // Ensure proper initialization
+            if (documentType.CreatedDate == default)
+            {
+                documentType.CreatedDate = DateTime.UtcNow;
+            }
+            
+            if (documentType.LastModifiedDate == default)
+            {
+                documentType.LastModifiedDate = DateTime.UtcNow;
+            }
+
+            if (string.IsNullOrEmpty(documentType.TypeName))
+            {
+                documentType.TypeName = documentType.Name.Replace(" ", "").ToLower();
+            }
+
+            // Add to database
+            await _dbContext.DocumentTypes.AddAsync(documentType);
+            await _dbContext.SaveChangesAsync();
+            
+            return documentType;
+        }
+
+        /// <summary>
+        /// Updates an existing document type
+        /// </summary>
+        /// <param name="documentType">Document type to update</param>
+        /// <returns>Updated document type</returns>
+        public new async Task<DocumentType> UpdateAsync(DocumentType documentType)
+        {
+            // Update last modified date
+            documentType.LastModifiedDate = DateTime.UtcNow;
+            
+            // Update entity
+            _dbContext.DocumentTypes.Update(documentType);
+            await _dbContext.SaveChangesAsync();
+            
+            return documentType;
+        }
+
+        /// <summary>
+        /// Deletes a document type
+        /// </summary>
+        /// <param name="id">Document type identifier</param>
+        /// <returns>True if the document type was deleted, false otherwise</returns>
+        public new async Task<bool> DeleteAsync(Guid id)
+        {
+            var documentType = await GetByIdAsync(id);
+            if (documentType == null)
+            {
+                return false;
+            }
+
+            // Check if there are any documents with this type before deleting
+            var hasDocuments = await _dbContext.Documents
+                .AnyAsync(d => d.DocumentTypeId == id && !d.IsDeleted);
+                
+            if (hasDocuments)
+            {
+                // Can't delete document type with associated documents
+                return false;
+            }
+
+            _dbContext.DocumentTypes.Remove(documentType);
+            await _dbContext.SaveChangesAsync();
+            
+            return true;
         }
 
         /// <summary>

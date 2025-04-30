@@ -1,83 +1,67 @@
-// IDocumentClassificationService.cs
+// -----------------------------------------------------------------------------
+// <copyright file="IDocumentClassificationService.cs" company="Marco Santiago">
+//     Copyright (c) 2025 Marco Santiago. All rights reserved.
+//     Proprietary and confidential.
+// </copyright>
+// -----------------------------------------------------------------------------
+// Author(s):          Marco Santiago
+// Created:            February 22, 2025
+// Last Modified:      April 29, 2025
+// Version:            0.9.0
+// Description:        Service interface for document classification operations
+// -----------------------------------------------------------------------------
+
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Threading.Tasks;
 using DocumentManagementML.Application.DTOs;
 
 namespace DocumentManagementML.Application.Interfaces
 {
     /// <summary>
-    /// Service interface for document classification operations
+    /// Service interface for document classification operations.
+    /// Phase 1 implementation with minimal ML functionality.
     /// </summary>
     public interface IDocumentClassificationService
     {
         /// <summary>
-        /// Classifies a document based on its ID
+        /// Classifies a document based on its ID.
         /// </summary>
-        /// <param name="documentId">Document identifier</param>
-        /// <returns>Classification result DTO</returns>
+        /// <param name="documentId">Document identifier.</param>
+        /// <returns>Classification result DTO.</returns>
         Task<DocumentClassificationResultDto> ClassifyDocumentAsync(Guid documentId);
         
         /// <summary>
-        /// Classifies a document using provided file stream
+        /// Classifies a document from a file stream.
         /// </summary>
-        /// <param name="fileStream">Document file stream</param>
-        /// <param name="fileName">Original file name</param>
-        /// <returns>Classification result DTO</returns>
-        Task<DocumentClassificationResultDto> ClassifyDocumentAsync(Stream fileStream, string fileName);
+        /// <param name="fileStream">The document file stream.</param>
+        /// <param name="fileName">The document file name.</param>
+        /// <returns>Classification result DTO.</returns>
+        Task<DocumentClassificationResultDto> ClassifyDocumentAsync(System.IO.Stream fileStream, string fileName);
         
         /// <summary>
-        /// Classifies a document using a classification request
+        /// Batch classifies multiple documents.
         /// </summary>
-        /// <param name="request">Classification request DTO</param>
-        /// <returns>Classification result DTO</returns>
-        Task<DocumentClassificationResultDto> ClassifyDocumentAsync(ClassificationRequestDto request);
+        /// <param name="documentIds">Collection of document identifiers.</param>
+        /// <returns>Collection of classification results.</returns>
+        Task<List<DocumentClassificationResultDto>> ClassifyDocumentsAsync(IEnumerable<Guid> documentIds);
         
         /// <summary>
-        /// Applies classification result to document metadata
+        /// Gets the current model metrics.
         /// </summary>
-        /// <param name="result">Classification result DTO</param>
-        /// <returns>True if successfully applied, false otherwise</returns>
-        Task<bool> ApplyClassificationResultAsync(DocumentClassificationResultDto result);
-        
-        /// <summary>
-        /// Gets the current model metrics
-        /// </summary>
-        /// <returns>Model metrics DTO</returns>
+        /// <returns>Model metrics DTO.</returns>
         Task<ModelMetricsDto> GetModelMetricsAsync();
         
         /// <summary>
-        /// Trains the classification model with existing documents
+        /// Trains the document classification model.
         /// </summary>
-        /// <returns>True if successfully trained, false otherwise</returns>
-        Task<bool> TrainModelAsync();
+        /// <returns>A task representing the asynchronous operation.</returns>
+        Task TrainModelAsync();
         
         /// <summary>
-        /// Evaluates the model using test data
+        /// Evaluates the document classification model.
         /// </summary>
-        /// <returns>Model evaluation metrics</returns>
+        /// <returns>Model metrics DTO.</returns>
         Task<ModelMetricsDto> EvaluateModelAsync();
-        
-        /// <summary>
-        /// Batch classifies multiple documents
-        /// </summary>
-        /// <param name="documentIds">Collection of document identifiers</param>
-        /// <returns>Collection of classification results</returns>
-        Task<IEnumerable<DocumentClassificationResultDto>> BatchClassifyDocumentsAsync(IEnumerable<Guid> documentIds);
-        
-        /// <summary>
-        /// Gets classification history for a document
-        /// </summary>
-        /// <param name="documentId">Document identifier</param>
-        /// <returns>Collection of classification results</returns>
-        Task<IEnumerable<DocumentClassificationResultDto>> GetClassificationHistoryAsync(Guid documentId);
-        
-        /// <summary>
-        /// Resets the classification for a document
-        /// </summary>
-        /// <param name="documentId">Document identifier</param>
-        /// <returns>True if successfully reset, false otherwise</returns>
-        Task<bool> ResetDocumentClassificationAsync(Guid documentId);
     }
 }

@@ -41,6 +41,12 @@ namespace DocumentManagementML.Domain.Repositories
         Task<User?> GetByIdAsync(Guid id);
         Task<bool> ExistsAsync(Guid id);
 
+        /// <summary>
+        /// Gets the count of active users in the system
+        /// </summary>
+        /// <returns>Count of active users</returns>
+        Task<int> GetActiveUsersCountAsync();
+
         Task<User> AddAsync(User user);
         Task<User> UpdateAsync(User user);
     }

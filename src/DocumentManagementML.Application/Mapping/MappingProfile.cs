@@ -30,13 +30,13 @@ namespace DocumentManagementML.Application.Mapping
                 .ForMember(dest => dest.DocumentName, opt => opt.MapFrom(src => src.Name))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
                 .ForMember(dest => dest.DocumentTypeId, opt => opt.MapFrom(src => src.DocumentTypeId))
-                .ForMember(dest => dest.MetadataDictionary, opt => opt.MapFrom(src => src.Metadata));
+                .ForMember(dest => dest.MetadataDictionary, opt => opt.Ignore());
             
             CreateMap<DocumentUpdateDto, Document>()
                 .ForMember(dest => dest.DocumentName, opt => opt.MapFrom(src => src.Name))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
                 .ForMember(dest => dest.DocumentTypeId, opt => opt.MapFrom(src => src.DocumentTypeId))
-                .ForMember(dest => dest.MetadataDictionary, opt => opt.MapFrom(src => src.Metadata));
+                .ForMember(dest => dest.MetadataDictionary, opt => opt.Ignore());
             
             // DocumentType mappings
             CreateMap<DocumentType, DocumentTypeDto>();
@@ -45,9 +45,11 @@ namespace DocumentManagementML.Application.Mapping
             
             // ML mappings
             CreateMap<ClassificationResult, DocumentClassificationResultDto>()
-                .ForMember(dest => dest.PredictedDocumentTypeName, opt => opt.MapFrom(src => src.PredictedDocumentType != null ? src.PredictedDocumentType.Name : null));
+                .ForMember(dest => dest.PredictedDocumentTypeName, opt => opt.MapFrom(src => src.PredictedDocumentType != null ? src.PredictedDocumentType.Name : null))
+                .ForMember(dest => dest.DocumentTypeScores, opt => opt.MapFrom(src => src.AllScores));
             
-            CreateMap<DocumentTypeScore, DocumentTypeScoreDto>();
+            CreateMap<DocumentTypeScore, DocumentTypeScoreDto>()
+                .ForMember(dest => dest.DocumentTypeName, opt => opt.MapFrom(src => src.DocumentType != null ? src.DocumentType.Name : null));
             
             // User mappings
             CreateMap<User, UserDto>()

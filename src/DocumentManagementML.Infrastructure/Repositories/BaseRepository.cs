@@ -1,4 +1,16 @@
-// BaseRepository.cs
+// -----------------------------------------------------------------------------
+// <copyright file="BaseRepository.cs" company="Marco Santiago">
+//     Copyright (c) 2025 Marco Santiago. All rights reserved.
+//     Proprietary and confidential.
+// </copyright>
+// -----------------------------------------------------------------------------
+// Author(s):          Marco Santiago
+// Created:            February 22, 2025
+// Last Modified:      April 29, 2025
+// Version:            0.9.0
+// Description:        Generic repository implementation for common entity operations,
+//                     providing basic CRUD operations and transaction handling.
+// -----------------------------------------------------------------------------
 using DocumentManagementML.Domain.Repositories;
 using DocumentManagementML.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
@@ -105,28 +117,65 @@ namespace DocumentManagementML.Infrastructure.Repositories
         /// Begins a new database transaction
         /// </summary>
         /// <returns>The transaction</returns>
+        /// <exception cref="InvalidOperationException">Thrown when a transaction could not be started</exception>
         public async Task<ITransaction> BeginTransactionAsync()
         {
-            var efTransaction = await _dbContext.Database.BeginTransactionAsync();
-            return new DbContextTransaction(efTransaction);
+            try
+            {
+                var efTransaction = await _dbContext.Database.BeginTransactionAsync();
+                return new DbContextTransaction(efTransaction);
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException("Failed to begin a new transaction", ex);
+            }
         }
 
         /// <summary>
         /// Commits the current transaction
         /// </summary>
         /// <param name="transaction">The transaction to commit</param>
+        /// <exception cref="ArgumentNullException">Thrown when transaction is null</exception>
+        /// <exception cref="InvalidOperationException">Thrown when the transaction cannot be committed</exception>
         public async Task CommitTransactionAsync(ITransaction transaction)
         {
-            await transaction.CommitAsync();
+            if (transaction == null)
+            {
+                throw new ArgumentNullException(nameof(transaction));
+            }
+
+            try
+            {
+                await transaction.CommitAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException("Failed to commit transaction", ex);
+            }
         }
 
         /// <summary>
         /// Rolls back the current transaction
         /// </summary>
         /// <param name="transaction">The transaction to roll back</param>
+        /// <exception cref="ArgumentNullException">Thrown when transaction is null</exception>
         public async Task RollbackTransactionAsync(ITransaction transaction)
         {
-            await transaction.RollbackAsync();
+            if (transaction == null)
+            {
+                throw new ArgumentNullException(nameof(transaction));
+            }
+
+            try
+            {
+                await transaction.RollbackAsync();
+            }
+            catch (Exception ex)
+            {
+                // Log but don't rethrow as rollback is typically called in exception handling
+                // and we don't want to mask the original exception
+                System.Diagnostics.Debug.WriteLine($"Warning: Failed to roll back transaction: {ex.Message}");
+            }
         }
 
         /// <summary>

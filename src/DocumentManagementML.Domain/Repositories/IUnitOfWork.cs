@@ -1,4 +1,15 @@
-// IUnitOfWork.cs
+// -----------------------------------------------------------------------------
+// <copyright file="IUnitOfWork.cs" company="Marco Santiago">
+//     Copyright (c) 2025 Marco Santiago. All rights reserved.
+//     Proprietary and confidential.
+// </copyright>
+// -----------------------------------------------------------------------------
+// Author(s):          Marco Santiago
+// Created:            February 22, 2025
+// Last Modified:      April 29, 2025
+// Version:            0.9.0
+// Description:        Interfaces for database transaction abstraction and management.
+// -----------------------------------------------------------------------------
 using System.Threading.Tasks;
 
 namespace DocumentManagementML.Domain.Repositories

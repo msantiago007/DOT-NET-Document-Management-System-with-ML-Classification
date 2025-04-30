@@ -1,4 +1,15 @@
-// src/DocumentManagementML.Domain/Entities/DocumentType.cs
+// -----------------------------------------------------------------------------
+// <copyright file="DocumentType.cs" company="Marco Santiago">
+//     Copyright (c) 2025 Marco Santiago. All rights reserved.
+//     Proprietary and confidential.
+// </copyright>
+// -----------------------------------------------------------------------------
+// Author(s):          Marco Santiago
+// Created:            February 22, 2025
+// Last Modified:      April 29, 2025
+// Version:            0.9.0
+// Description:        Defines document type entities that categorize documents
+// -----------------------------------------------------------------------------
 using System;
 using System.Collections.Generic;
 
@@ -9,8 +20,9 @@ namespace DocumentManagementML.Domain.Entities
     /// Document types define the schema and expected metadata for documents.
     /// </summary>
     /// <remarks>
-    /// Author: Marco Alejandro Santiago
+    /// Author: Marco Santiago
     /// Created: February 22, 2025
+    /// Modified: April 29, 2025 - Added TypeName property for system identification
     /// </remarks>
     public class DocumentType
     {
@@ -24,6 +36,7 @@ namespace DocumentManagementML.Domain.Entities
             
             // Set default values
             Name = string.Empty;
+            TypeName = string.Empty;
             Description = string.Empty;
             SchemaDefinition = string.Empty;
             CreatedDate = DateTime.UtcNow;
@@ -41,6 +54,12 @@ namespace DocumentManagementML.Domain.Entities
         /// Must be unique within the system.
         /// </summary>
         public string Name { get; set; } = string.Empty;
+        
+        /// <summary>
+        /// Gets or sets the type name (identifier) of the document type.
+        /// This is a system identifier used for classification and automation.
+        /// </summary>
+        public string TypeName { get; set; } = string.Empty;
 
         /// <summary>
         /// Gets or sets the description of the document type.
