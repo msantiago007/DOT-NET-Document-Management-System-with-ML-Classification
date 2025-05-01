@@ -15,7 +15,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCopyrightAttribute("Copyright (c) 2025 Marco Santiago. All rights reserved.")]
 [assembly: System.Reflection.AssemblyDescriptionAttribute("DocumentManagementML Domain Layer - Core domain entities and interfaces")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("0.9.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("0.9.0+497e58e4ebacc59bdc9193e06f121379d3fd8eea")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("0.9.0+b697dd7f5eeb5c7343981440106cced68c73c146")]
 [assembly: System.Reflection.AssemblyProductAttribute("DocumentManagementML.Domain")]
 [assembly: System.Reflection.AssemblyTitleAttribute("DocumentManagementML.Domain")]
 [assembly: System.Reflection.AssemblyVersionAttribute("0.9.0.0")]

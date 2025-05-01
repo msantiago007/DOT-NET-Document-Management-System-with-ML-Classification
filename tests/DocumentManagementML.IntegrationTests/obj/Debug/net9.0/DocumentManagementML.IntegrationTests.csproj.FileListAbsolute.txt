@@ -505,3 +505,4 @@ c:/Projects/DocumentManagementML/tests/DocumentManagementML.IntegrationTests/obj
 /home/administrator/nodejs/DocumentManagementML/tests/DocumentManagementML.IntegrationTests/bin/Debug/net9.0/FluentValidation.AspNetCore.dll
 /home/administrator/nodejs/DocumentManagementML/tests/DocumentManagementML.IntegrationTests/bin/Debug/net9.0/FluentValidation.DependencyInjectionExtensions.dll
 /home/administrator/nodejs/DocumentManagementML/tests/DocumentManagementML.IntegrationTests/bin/Debug/net9.0/DocumentManagementML.API.xml
+/home/administrator/nodejs/DocumentManagementML/tests/DocumentManagementML.IntegrationTests/obj/Debug/net9.0/MvcTestingAppManifest.json
