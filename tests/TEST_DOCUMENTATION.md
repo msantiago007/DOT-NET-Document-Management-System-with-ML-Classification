@@ -1,12 +1,14 @@
 # Test Documentation for DocumentManagementML
 
-This document outlines the unit tests implemented in the project, what functionality they test, and how to run them manually.
+This document outlines the unit tests and integration tests implemented in the project, what functionality they test, and how to run them manually.
 
 ## Overview of Implemented Tests
 
-The project contains the following unit tests:
+The project contains the following tests:
 
-### Entity Tests
+### Unit Tests
+
+#### Entity Tests
 
 1. **DocumentTypeTests**
    - Located in: `tests/DocumentManagementML.UnitTests/Entities/DocumentTypeTests.cs`
@@ -18,7 +20,7 @@ The project contains the following unit tests:
    - Tests the `DocumentClassificationResult` entity class, including the new IsSuccessful property
    - Verifies property assignment and default initialization
 
-### Service Tests
+#### Service Tests
 
 1. **DocumentTypeServiceTests**
    - Located in: `tests/DocumentManagementML.UnitTests/Services/DocumentTypeServiceTests.cs`
@@ -153,12 +155,54 @@ A total of 1 test files matched the specified pattern.
 Failed!  - Failed:     1, Passed:     1, Skipped:     0, Total:     2, Duration: < 1 ms
 ```
 
+### Integration Tests
+
+1. **ApiIntegrationTests**
+   - Located in: `tests/DocumentManagementML.IntegrationTests/UnitTest1.cs`
+   - Tests basic API connectivity
+   - Verifies that the API is accessible and returns successful responses
+
+2. **ApiControllerTests**
+   - Located in: `tests/DocumentManagementML.IntegrationTests/ApiControllerTests.cs`
+   - Tests various API endpoints including authenticated and unauthenticated requests
+   - Verifies authentication flow and basic controller functionality
+
+## Running Integration Tests
+
+You can run the integration tests using the .NET CLI:
+
+### Run All Integration Tests
+
+```bash
+export PATH=$HOME/.dotnet:$PATH
+cd /home/administrator/nodejs/DocumentManagementML
+dotnet test tests/DocumentManagementML.IntegrationTests
+```
+
+### Run a Specific Integration Test
+
+```bash
+export PATH=$HOME/.dotnet:$PATH
+cd /home/administrator/nodejs/DocumentManagementML
+dotnet test tests/DocumentManagementML.IntegrationTests --filter "FullyQualifiedName=DocumentManagementML.IntegrationTests.ApiIntegrationTests.Api_IsAccessible"
+```
+
+## Integration Test Environment
+
+Our integration tests use:
+
+- WebApplicationFactory<MyAppProgram> for hosting the API
+- In-memory database for persistence
+- Seeded test data (users, document types, documents)
+- Authentication helpers for testing secured endpoints
+
 ## Adding New Tests
 
 As you develop the system further, you should continue adding tests for new components:
 
-1. For new entities, add tests that verify default initialization and property setting
-2. For services, test both success scenarios and edge cases/error conditions
-3. Use mocking with Moq to isolate the component being tested
+1. For new entities, add unit tests that verify default initialization and property setting
+2. For services, add unit tests for both success scenarios and edge cases/error conditions using Moq
+3. For API controllers, add integration tests that verify the entire request/response flow
+4. For transaction-heavy operations, add integration tests that verify data consistency
 
 This approach ensures that existing functionality remains working as you add new features and fix bugs.

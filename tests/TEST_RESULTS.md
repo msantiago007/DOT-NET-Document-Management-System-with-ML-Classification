@@ -1,8 +1,10 @@
-# Phase 1 Test Results
+# Test Results
 
 ## Overview
 
-This document summarizes the test results for Phase 1 (Core Domain Layer) of the DocumentManagementML project.
+This document summarizes the test results for the DocumentManagementML project.
+
+## Phase 1 Test Results (Core Domain Layer)
 
 ## Test Execution Summary
 
@@ -99,3 +101,73 @@ These tests verify the complete integration of repositories with Entity Framewor
 The test results confirm that the core functionality of Phase 1 is working as expected. The domain entities, repositories, and interfaces are properly implemented and function correctly. Minor issues with integration tests do not affect the overall functionality of the core domain layer.
 
 Phase 1 testing is considered complete with all critical components validated.
+
+## Phase 2-3 Test Results (Application Services & API Layer)
+
+**Date Executed:** May 1, 2025  
+**Build Version:** 0.9.0  
+**Framework:** xUnit 2.9.2
+
+### 1. Basic API Integration Tests
+
+**Status:** ✅ PASSED  
+**Test Class:** `ApiIntegrationTests`
+
+These tests verify that the API is accessible and returns the expected responses.
+
+```
+dotnet test --filter "FullyQualifiedName~ApiIntegrationTests"
+```
+
+**Key Tests:**
+- Api_IsAccessible
+
+### 2. Controller Tests
+
+**Status:** 🔄 IN PROGRESS  
+**Test Classes:** 
+- ApiControllerTests
+- AuthControllerTests
+- DocumentTypesControllerTests
+- DocumentsControllerTests
+- MLControllerTests
+- EnhancedDocumentTypesControllerTests
+- EnhancedDocumentsControllerTests
+- EnhancedMLControllerTests
+
+These tests verify that the controllers handle requests correctly and return the expected responses. The basic endpoints are being tested first, with more comprehensive tests for CRUD operations in development.
+
+### 3. Integration Tests
+
+**Status:** 🔄 IN PROGRESS  
+**Test Classes:**
+- TransactionHandlingTests
+
+These tests verify that transaction handling works correctly across repositories and services.
+
+## Test Environment
+
+For Phase 2-3 tests, we're using:
+- WebApplicationFactory for in-memory API testing
+- In-memory database for persistence
+- Authentication tokens for testing secured endpoints
+
+## Known Issues
+
+1. DTO property naming mismatches between tests and application code:
+   - Some tests expect properties like "DocumentName" when the actual DTO uses "Name"
+   - Some tests expect "TypeName" when the actual DTO uses "Name"
+   - These mismatches are being addressed as we align tests with the actual models
+
+2. Authentication and role-based authorization testing needs more coverage
+
+## Next Steps
+
+1. Complete implementation of controller-specific tests using correct DTO properties
+2. Add tests for error conditions and edge cases
+3. Implement transaction testing across multiple repositories
+4. Add performance tests for critical endpoints
+
+## Conclusion
+
+Basic API connectivity testing is now complete, confirming that the API layer is functional. More comprehensive testing of specific controller endpoints and transaction handling is in progress as we complete Phase 2-3 validation.

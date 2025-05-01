@@ -26,6 +26,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+#pragma warning disable CS0612 // Type or member is obsolete
+
 namespace DocumentManagementML.Application.Services
 {
     /// <summary>
