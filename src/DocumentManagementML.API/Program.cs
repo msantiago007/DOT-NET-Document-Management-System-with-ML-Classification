@@ -17,6 +17,7 @@ using System.Text;
 using System.Threading.Tasks;
 using DocumentManagementML.API.Auth;
 using DocumentManagementML.API.Validators;
+using DocumentManagementML.Domain.Repositories;
 using DocumentManagementML.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Options;
@@ -51,7 +52,16 @@ builder.Services.AddControllers(options =>
 });
 
 // Configure Problem Details
-builder.Services.AddProblemDetails();
+builder.Services.AddProblemDetails(options => 
+{
+    // Customize problem details
+    options.CustomizeProblemDetails = context =>
+    {
+        // Add application-specific properties
+        context.ProblemDetails.Extensions["traceId"] = context.HttpContext.TraceIdentifier;
+        context.ProblemDetails.Extensions["serverId"] = Environment.MachineName;
+    };
+});
 
 // Add API versioning
 builder.Services.AddApiVersioning(options =>
@@ -75,16 +85,16 @@ builder.Services.UseEnhancedControllers(useEnhanced);
 Console.WriteLine($"Using {(useEnhanced ? "enhanced" : "original")} controllers");
 
 // Register validators
-builder.Services.AddScoped<IValidator<DocumentManagementML.Application.DTOs.DocumentCreateDto>, DocumentValidators.DocumentCreateDtoValidator>();
-builder.Services.AddScoped<IValidator<DocumentManagementML.Application.DTOs.DocumentUpdateDto>, DocumentValidators.DocumentUpdateDtoValidator>();
-builder.Services.AddScoped<IValidator<DocumentManagementML.Application.DTOs.DocumentTypeCreateDto>, DocumentTypeValidators.DocumentTypeCreateDtoValidator>();
-builder.Services.AddScoped<IValidator<DocumentManagementML.Application.DTOs.DocumentTypeUpdateDto>, DocumentTypeValidators.DocumentTypeUpdateDtoValidator>();
+builder.Services.AddScoped<IValidator<DocumentManagementML.Application.DTOs.DocumentCreateDto>, DocumentManagementML.API.Validators.DocumentCreateDtoValidator>();
+builder.Services.AddScoped<IValidator<DocumentManagementML.Application.DTOs.DocumentUpdateDto>, DocumentManagementML.API.Validators.DocumentUpdateDtoValidator>();
+builder.Services.AddScoped<IValidator<DocumentManagementML.Application.DTOs.DocumentTypeCreateDto>, DocumentManagementML.API.Validators.DocumentTypeCreateDtoValidator>();
+builder.Services.AddScoped<IValidator<DocumentManagementML.Application.DTOs.DocumentTypeUpdateDto>, DocumentManagementML.API.Validators.DocumentTypeUpdateDtoValidator>();
 builder.Services.AddScoped<IValidator<DocumentManagementML.Application.DTOs.UserCreateDto>, UserValidators.UserCreateDtoValidator>();
 builder.Services.AddScoped<IValidator<DocumentManagementML.Application.DTOs.UserUpdateDto>, UserValidators.UserUpdateDtoValidator>();
 builder.Services.AddScoped<IValidator<DocumentManagementML.API.Auth.LoginRequest>, UserValidators.LoginRequestValidator>();
 builder.Services.AddScoped<IValidator<DocumentManagementML.API.Auth.RefreshTokenRequest>, UserValidators.RefreshTokenRequestValidator>();
 builder.Services.AddScoped<IValidator<DocumentManagementML.API.Auth.RegisterRequest>, UserValidators.RegisterRequestValidator>();
-builder.Services.AddScoped<IValidator<DocumentManagementML.API.Controllers.UsersController.ChangePasswordRequest>, UserValidators.ChangePasswordRequestValidator>();
+builder.Services.AddScoped<IValidator<DocumentManagementML.API.Validators.ChangePasswordRequest>, DocumentManagementML.API.Validators.ChangePasswordRequestValidator>();
 
 // Add Swagger documentation
 builder.Services.AddEndpointsApiExplorer();
@@ -232,5 +242,40 @@ app.UseEndpoints(endpoints =>
 {
     endpoints.MapControllers();
 });
+
+// Seed the database if it's empty
+using (var scope = app.Services.CreateScope())
+{
+    try
+    {
+        var context = scope.ServiceProvider.GetRequiredService<DocumentManagementML.Infrastructure.Data.DocumentManagementDbContext>();
+        var passwordHasher = scope.ServiceProvider.GetRequiredService<DocumentManagementML.Application.Interfaces.IPasswordHasher>();
+        var logger = scope.ServiceProvider.GetRequiredService<Microsoft.Extensions.Logging.ILogger<DocumentManagementML.Infrastructure.Services.DatabaseSeeder>>();
+        
+        // Convert interface to concrete type for seeder
+        var concretePasswordHasher = passwordHasher as DocumentManagementML.Infrastructure.Services.SimplePasswordHasher;
+        if (concretePasswordHasher == null)
+        {
+            Console.WriteLine("⚠️  Password hasher not available for seeding, skipping user creation");
+            return;
+        }
+        
+        var seeder = new DocumentManagementML.Infrastructure.Services.DatabaseSeeder(context, concretePasswordHasher, logger);
+        var seeded = await seeder.SeedAsync();
+        
+        if (seeded)
+        {
+            Console.WriteLine("✅ Database seeded successfully with initial data");
+        }
+        else
+        {
+            Console.WriteLine("ℹ️  Database already contains data, seeding skipped");
+        }
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"❌ Error seeding database: {ex.Message}");
+    }
+}
 
 app.Run();

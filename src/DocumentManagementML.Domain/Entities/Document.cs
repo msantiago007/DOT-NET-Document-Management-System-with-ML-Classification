@@ -13,6 +13,7 @@
 // -----------------------------------------------------------------------------
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DocumentManagementML.Domain.Entities
 {
@@ -80,7 +81,7 @@ namespace DocumentManagementML.Domain.Entities
         /// <summary>
         /// Gets or sets the ID of the user who created the document.
         /// </summary>
-        public int CreatedById { get; set; }
+        public Guid CreatedById { get; set; }
 
         /// <summary>
         /// Gets or sets the date and time when the document was last modified.
@@ -90,7 +91,7 @@ namespace DocumentManagementML.Domain.Entities
         /// <summary>
         /// Gets or sets the ID of the user who last modified the document.
         /// </summary>
-        public int LastModifiedById { get; set; }
+        public Guid LastModifiedById { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether the document has been deleted (soft delete).
@@ -173,11 +174,13 @@ namespace DocumentManagementML.Domain.Entities
         /// <summary>
         /// Gets or sets the user who created this document.
         /// </summary>
+        [NotMapped]
         public User? CreatedBy { get; set; }
 
         /// <summary>
         /// Gets or sets the user who last modified this document.
         /// </summary>
+        [NotMapped]
         public User? ModifiedBy { get; set; }
 
         /// <summary>
@@ -192,12 +195,18 @@ namespace DocumentManagementML.Domain.Entities
 
         /// <summary>
         /// Gets or sets the collection of relationships where this document is the source.
+        /// This property is not mapped to the database directly but managed through
+        /// explicit relationship configuration in DbContext.
         /// </summary>
-        public ICollection<DocumentRelationship> SourceRelationships { get; set; }
+        [NotMapped]
+        public ICollection<DocumentRelationship> SourceRelationships { get; set; } = new List<DocumentRelationship>();
 
         /// <summary>
         /// Gets or sets the collection of relationships where this document is the target.
+        /// This property is not mapped to the database directly but managed through
+        /// explicit relationship configuration in DbContext.
         /// </summary>
-        public ICollection<DocumentRelationship> TargetRelationships { get; set; }
+        [NotMapped]
+        public ICollection<DocumentRelationship> TargetRelationships { get; set; } = new List<DocumentRelationship>();
     }
 }

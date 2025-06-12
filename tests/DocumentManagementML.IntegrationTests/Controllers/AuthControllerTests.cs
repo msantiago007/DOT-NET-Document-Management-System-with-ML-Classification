@@ -13,7 +13,10 @@
 
 using DocumentManagementML.IntegrationTests.TestFixtures;
 using DocumentManagementML.IntegrationTests.TestHelpers;
+using System;
 using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -33,25 +36,39 @@ namespace DocumentManagementML.IntegrationTests.Controllers
         {
             // Arrange
             var client = _fixture.CreateClient();
+            
+            // First, log the available routes
+            var response = await client.GetAsync("/");
+            Console.WriteLine($"Root response: {response.StatusCode}");
+            
+            // Try accessing Swagger to see if API is running
+            var swaggerResponse = await client.GetAsync("/swagger");
+            Console.WriteLine($"Swagger response: {swaggerResponse.StatusCode}");
+            
+            // Try with full API path
             var loginRequest = new
             {
                 UsernameOrEmail = "testuser",
                 Password = "Test123!"
             };
 
-            // Act
-            var response = await client.PostAsync("/api/v1/auth/login", 
+            // Act - Notice we're using the EnhancedAuth controller route
+            var loginResponse = await client.PostAsync("/api/v1/EnhancedAuth/login", 
                 TestHelper.CreateJsonContent(loginRequest));
+            
+            Console.WriteLine($"Login response: {loginResponse.StatusCode}");
+            Console.WriteLine($"Login response content: {await loginResponse.Content.ReadAsStringAsync()}");
 
             // Assert
-            response.EnsureSuccessStatusCode();
-            var authResponse = await TestHelper.DeserializeResponseAsync<ApiTestFixture.LoginResponseDto>(response);
+            loginResponse.EnsureSuccessStatusCode();
+            var authResponse = await TestHelper.DeserializeResponseAsync<ApiTestFixture.LoginResponseDto>(loginResponse);
             
             Assert.NotNull(authResponse);
             Assert.Equal("testuser", authResponse.Username);
             Assert.NotEmpty(authResponse.AccessToken);
             Assert.NotEmpty(authResponse.RefreshToken);
             Assert.Contains("Admin", authResponse.Roles);
+            Assert.True(authResponse.TokenExpiration > DateTime.UtcNow);
         }
 
         [Fact]
@@ -71,6 +88,25 @@ namespace DocumentManagementML.IntegrationTests.Controllers
 
             // Assert
             Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task Login_WithMissingRequiredFields_ReturnsBadRequest()
+        {
+            // Arrange
+            var client = _fixture.CreateClient();
+            var loginRequest = new
+            {
+                UsernameOrEmail = ""
+                // Missing password
+            };
+
+            // Act
+            var response = await client.PostAsync("/api/v1/auth/login", 
+                TestHelper.CreateJsonContent(loginRequest));
+
+            // Assert
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         }
 
         [Fact]
@@ -101,6 +137,109 @@ namespace DocumentManagementML.IntegrationTests.Controllers
             Assert.Equal("newuser@example.com", authResponse.Email);
             Assert.NotEmpty(authResponse.AccessToken);
             Assert.NotEmpty(authResponse.RefreshToken);
+        }
+
+        [Fact]
+        public async Task Register_WithMismatchedPasswords_ReturnsBadRequest()
+        {
+            // Arrange
+            var client = _fixture.CreateClient();
+            var registerRequest = new 
+            {
+                Username = "invaliduser",
+                Password = "Password123!",
+                ConfirmPassword = "DifferentPassword123!",
+                Email = "invalid@example.com",
+                FirstName = "Invalid",
+                LastName = "User"
+            };
+
+            // Act
+            var response = await client.PostAsync("/api/v1/auth/register", 
+                TestHelper.CreateJsonContent(registerRequest));
+
+            // Assert
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task Register_WithExistingUsername_ReturnsBadRequest()
+        {
+            // Arrange
+            var client = _fixture.CreateClient();
+            var registerRequest = new 
+            {
+                Username = "testuser", // Existing username
+                Password = "Test123!",
+                ConfirmPassword = "Test123!",
+                Email = "unique@example.com",
+                FirstName = "Test",
+                LastName = "User"
+            };
+
+            // Act
+            var response = await client.PostAsync("/api/v1/auth/register", 
+                TestHelper.CreateJsonContent(registerRequest));
+
+            // Assert
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task RefreshToken_WithValidToken_ReturnsNewTokens()
+        {
+            // Arrange
+            // First login to get tokens
+            var client = _fixture.CreateClient();
+            var loginRequest = new
+            {
+                UsernameOrEmail = "testuser",
+                Password = "Test123!"
+            };
+
+            var loginResponse = await client.PostAsync("/api/v1/auth/login", 
+                TestHelper.CreateJsonContent(loginRequest));
+            loginResponse.EnsureSuccessStatusCode();
+            
+            var authResponse = await TestHelper.DeserializeResponseAsync<ApiTestFixture.LoginResponseDto>(loginResponse);
+            
+            var refreshRequest = new
+            {
+                RefreshToken = authResponse.RefreshToken
+            };
+
+            // Act
+            var response = await client.PostAsync("/api/v1/auth/refresh", 
+                TestHelper.CreateJsonContent(refreshRequest));
+
+            // Assert
+            response.EnsureSuccessStatusCode();
+            var refreshedTokens = await TestHelper.DeserializeResponseAsync<ApiTestFixture.LoginResponseDto>(response);
+            
+            Assert.NotNull(refreshedTokens);
+            Assert.Equal(authResponse.Username, refreshedTokens.Username);
+            Assert.NotEmpty(refreshedTokens.AccessToken);
+            Assert.NotEmpty(refreshedTokens.RefreshToken);
+            Assert.NotEqual(authResponse.AccessToken, refreshedTokens.AccessToken);
+            Assert.NotEqual(authResponse.RefreshToken, refreshedTokens.RefreshToken);
+        }
+
+        [Fact]
+        public async Task RefreshToken_WithInvalidToken_ReturnsUnauthorized()
+        {
+            // Arrange
+            var client = _fixture.CreateClient();
+            var refreshRequest = new
+            {
+                RefreshToken = "invalid-refresh-token"
+            };
+
+            // Act
+            var response = await client.PostAsync("/api/v1/auth/refresh", 
+                TestHelper.CreateJsonContent(refreshRequest));
+
+            // Assert
+            Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
         }
 
         [Fact]
@@ -137,6 +276,20 @@ namespace DocumentManagementML.IntegrationTests.Controllers
         }
 
         [Fact]
+        public async Task GetCurrentUser_WithInvalidToken_ReturnsUnauthorized()
+        {
+            // Arrange
+            var client = _fixture.CreateClient();
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", "invalid-token");
+
+            // Act
+            var response = await client.GetAsync("/api/v1/auth/me");
+
+            // Assert
+            Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+        }
+
+        [Fact]
         public async Task Logout_WithAuthenticatedUser_ReturnsSuccess()
         {
             // Arrange
@@ -151,6 +304,59 @@ namespace DocumentManagementML.IntegrationTests.Controllers
             
             Assert.NotNull(responseDto);
             Assert.True(responseDto.Success);
+        }
+
+        [Fact]
+        public async Task Logout_ThenAccessProtectedEndpoint_ReturnsUnauthorized()
+        {
+            // Arrange
+            var client = await _fixture.CreateAuthenticatedClientAsync();
+            
+            // First logout
+            var logoutResponse = await client.PostAsync("/api/v1/auth/logout", null);
+            logoutResponse.EnsureSuccessStatusCode();
+
+            // Act - try to access protected endpoint with the same client
+            var response = await client.GetAsync("/api/v1/auth/me");
+
+            // Assert
+            Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task ChangePassword_WithValidCurrentPassword_ReturnsSuccess()
+        {
+            // Arrange
+            var client = await _fixture.CreateAuthenticatedClientAsync();
+            var changePasswordRequest = new
+            {
+                CurrentPassword = "Test123!",
+                NewPassword = "NewTest456!",
+                ConfirmNewPassword = "NewTest456!"
+            };
+
+            // Act
+            var response = await client.PostAsync("/api/v1/auth/change-password", 
+                TestHelper.CreateJsonContent(changePasswordRequest));
+
+            // Assert
+            response.EnsureSuccessStatusCode();
+            var responseDto = await TestHelper.DeserializeResponseAsync<ResponseDto>(response);
+            
+            Assert.NotNull(responseDto);
+            Assert.True(responseDto.Success);
+            
+            // Verify we can login with the new password
+            var loginRequest = new
+            {
+                UsernameOrEmail = "testuser",
+                Password = "NewTest456!"
+            };
+            
+            var loginResponse = await client.PostAsync("/api/v1/auth/login", 
+                TestHelper.CreateJsonContent(loginRequest));
+            
+            loginResponse.EnsureSuccessStatusCode();
         }
     }
 }

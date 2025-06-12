@@ -24,6 +24,9 @@ namespace DocumentManagementML.Application.DTOs
         public bool ApplyResult { get; set; } = false;
         
         public bool ForceReclassify { get; set; } = false;
+        
+        // Added for compatibility with tests
+        public string? Text { get; set; }
     }
     
     // See ModelMetricsDto.cs for the current implementation

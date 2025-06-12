@@ -16,6 +16,14 @@ namespace DocumentManagementML.Application.DTOs
         /// Gets or sets the name of the document type.
         /// </summary>
         public string? DocumentTypeName { get; set; }
+        
+        /// <summary>
+        /// Gets or sets the type name of the document type (alias for DocumentTypeName for test compatibility).
+        /// </summary>
+        public string? TypeName { 
+            get => DocumentTypeName; 
+            set => DocumentTypeName = value; 
+        }
 
         /// <summary>
         /// Gets or sets the confidence score for the document type.

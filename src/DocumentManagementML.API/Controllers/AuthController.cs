@@ -149,7 +149,7 @@ namespace DocumentManagementML.API.Controllers
                 
                 // Update last login
                 user.LastLoginDate = DateTime.UtcNow;
-                await _userService.UpdateUserAsync(user.Id, new UserDto
+                await _userService.UpdateUserAsync(user.Id, new UserUpdateDto
                 {
                     LastLoginDate = DateTime.UtcNow
                 });

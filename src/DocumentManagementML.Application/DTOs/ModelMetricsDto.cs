@@ -11,6 +11,16 @@ namespace DocumentManagementML.Application.DTOs
         /// Gets or sets the model ID.
         /// </summary>
         public string ModelId { get; set; } = string.Empty;
+        
+        /// <summary>
+        /// Gets or sets the model name.
+        /// </summary>
+        public string ModelName { get; set; } = string.Empty;
+        
+        /// <summary>
+        /// Gets or sets the document types in the model.
+        /// </summary>
+        public string[] DocumentTypes { get; set; } = Array.Empty<string>();
 
         /// <summary>
         /// Gets or sets the accuracy of the model.

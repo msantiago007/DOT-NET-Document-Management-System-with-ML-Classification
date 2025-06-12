@@ -24,16 +24,21 @@ using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using DocumentManagementML.IntegrationTests.TestHelpers;
 
 namespace DocumentManagementML.IntegrationTests.TestFixtures
 {
     /// <summary>
     /// Test fixture for API integration tests
     /// </summary>
-    public class ApiTestFixture : WebApplicationFactory<MyAppProgram>, IDisposable
+    public class ApiTestFixture : DocumentManagementML.IntegrationTests.TestHelpers.CustomWebApplicationFactory, IDisposable
     {
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
+            // Use the correct content root for the test host
+            var contentRoot = TestHelpers.WebApplicationFactoryContentRoot.GetProjectPath();
+            builder.UseContentRoot(contentRoot);
+            
             builder.ConfigureServices(services =>
             {
                 // Remove the app's DbContext registration

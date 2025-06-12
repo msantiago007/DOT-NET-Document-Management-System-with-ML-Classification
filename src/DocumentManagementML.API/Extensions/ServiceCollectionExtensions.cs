@@ -33,7 +33,7 @@ namespace DocumentManagementML.API.Extensions
             // Use simple implementation for phase 1
             services.AddScoped<IDocumentClassificationService, SimpleDocumentClassificationService>();
             // Add password hasher
-            services.AddSingleton<IPasswordHasher, DocumentManagementML.Infrastructure.Services.SimplePasswordHasher>();
+            services.AddSingleton<DocumentManagementML.Application.Interfaces.IPasswordHasher, DocumentManagementML.Infrastructure.Services.SimplePasswordHasher>();
 
             return services;
         }
@@ -43,10 +43,20 @@ namespace DocumentManagementML.API.Extensions
             // Configure ML settings
             services.Configure<MLSettings>(configuration.GetSection("ML"));
 
-            // Register ML services (simplified for phase 1)
-            services.AddSingleton<ITextExtractor, SimpleTextExtractor>();
-            // Document classification model registration commented out for phase 1
-            // services.AddSingleton<IDocumentClassificationModel, DocumentClassificationModel>();
+            // Register enhanced text extraction services (Phase 4)
+            services.AddSingleton<PdfTextExtractor>();
+            services.AddSingleton<OfficeTextExtractor>();
+            services.AddSingleton<OcrTextExtractor>();
+            services.AddSingleton<TextPreprocessingPipeline>();
+            
+            // Register enhanced text extractor as the main implementation
+            services.AddSingleton<ITextExtractor, EnhancedTextExtractor>();
+            
+            // Keep simple extractor available for fallback
+            services.AddSingleton<SimpleTextExtractor>();
+            
+            // Document classification model registration
+            services.AddSingleton<IDocumentClassificationModel, DocumentClassificationModel>();
 
             return services;
         }
@@ -72,11 +82,22 @@ namespace DocumentManagementML.API.Extensions
             
             if (string.IsNullOrEmpty(connectionString))
             {
-                // Use in-memory database if connection string is not provided
+                // Use SQLite database as default (persistent but no server required)
+                var sqliteConnectionString = "Data Source=./DocumentManagementML/Data/DocumentManagement.db";
                 services.AddDbContext<DocumentManagementDbContext>(options =>
-                    options.UseInMemoryDatabase("DocumentManagementInMemory"));
+                    options.UseSqlite(sqliteConnectionString, 
+                        b => b.MigrationsAssembly("DocumentManagementML.Infrastructure")));
                     
-                Console.WriteLine("Using in-memory database for development");
+                Console.WriteLine("Using SQLite database for development: ./DocumentManagementML/Data/DocumentManagement.db");
+            }
+            else if (connectionString.Contains("Data Source=") || connectionString.EndsWith(".db"))
+            {
+                // Use SQLite with custom connection string
+                services.AddDbContext<DocumentManagementDbContext>(options =>
+                    options.UseSqlite(connectionString,
+                        b => b.MigrationsAssembly("DocumentManagementML.Infrastructure")));
+                        
+                Console.WriteLine("Using SQLite database with connection string");
             }
             else
             {
@@ -97,6 +118,7 @@ namespace DocumentManagementML.API.Extensions
             services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
             
             // Register Unit of Work
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<IUnitOfWorkExtended, UnitOfWork>();
 
             return services;

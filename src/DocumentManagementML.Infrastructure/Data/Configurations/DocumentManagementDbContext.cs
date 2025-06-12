@@ -94,6 +94,18 @@ namespace DocumentManagementML.Infrastructure.Data
                 entity.Property(e => e.IsAdmin).HasDefaultValue(false);
                 entity.HasIndex(e => e.Username).IsUnique();
                 entity.HasIndex(e => e.Email).IsUnique();
+                
+                // Ignore properties marked with [NotMapped]
+                entity.Ignore(u => u.CreatedDocuments);
+                entity.Ignore(u => u.ModifiedDocuments);
+                entity.Ignore(u => u.CreatedVersions);
+                entity.Ignore(u => u.CreatedRelationships);
+                
+                // Configure the UploadedDocuments navigation
+                entity.HasMany(u => u.UploadedDocuments)
+                      .WithOne(d => d.UploadedBy)
+                      .HasForeignKey(d => d.UploadedById)
+                      .OnDelete(DeleteBehavior.Restrict);
             });
 
             // Configure DocumentType entity
@@ -123,9 +135,31 @@ namespace DocumentManagementML.Infrastructure.Data
                       .OnDelete(DeleteBehavior.SetNull);
                 
                 entity.HasOne(d => d.UploadedBy)
-                      .WithMany()
+                      .WithMany(u => u.UploadedDocuments)
                       .HasForeignKey(d => d.UploadedById)
                       .OnDelete(DeleteBehavior.Restrict);
+                
+                // Note: CreatedBy and ModifiedBy navigation properties are marked with [NotMapped]
+                // in the entity class to avoid circular references
+                // Set up explicit foreign key relationships without navigation collections
+                
+                // Add foreign key relationships for CreatedById and LastModifiedById
+                entity.HasOne<User>()
+                      .WithMany()
+                      .HasForeignKey(d => d.CreatedById)
+                      .OnDelete(DeleteBehavior.Restrict);
+                
+                entity.HasOne<User>()
+                      .WithMany()
+                      .HasForeignKey(d => d.LastModifiedById)
+                      .OnDelete(DeleteBehavior.Restrict);
+                
+                // Explicitly ignore navigation properties that are marked with [NotMapped]
+                // EF Core will skip these during model building
+                entity.Ignore(d => d.CreatedBy);
+                entity.Ignore(d => d.ModifiedBy);
+                entity.Ignore(d => d.SourceRelationships);
+                entity.Ignore(d => d.TargetRelationships);
             });
 
             // Configure DocumentVersion entity
@@ -203,6 +237,35 @@ namespace DocumentManagementML.Infrastructure.Data
                 
                 entity.HasIndex(e => e.Token).IsUnique();
                 entity.HasIndex(e => e.UserId);
+            });
+            
+            // Configure DocumentRelationship entity
+            modelBuilder.Entity<DocumentRelationship>(entity =>
+            {
+                entity.ToTable("DocumentRelationships");
+                entity.HasKey(e => e.RelationshipId);
+                entity.Property(e => e.RelationshipType).IsRequired().HasMaxLength(100);
+                entity.Property(e => e.CreatedDate).IsRequired();
+                
+                // Configure the relationships with the Document entity
+                // Use HasOne with WithMany to explicitly define the relationship
+                // since the navigation properties in Document are [NotMapped]
+                entity.HasOne(r => r.SourceDocument)
+                      .WithMany()
+                      .HasForeignKey(r => r.SourceDocumentId)
+                      .OnDelete(DeleteBehavior.Restrict);
+                
+                entity.HasOne(r => r.TargetDocument)
+                      .WithMany()
+                      .HasForeignKey(r => r.TargetDocumentId)
+                      .OnDelete(DeleteBehavior.Restrict);
+                
+                entity.HasOne(r => r.CreatedBy)
+                      .WithMany()
+                      .HasForeignKey(r => r.CreatedById)
+                      .OnDelete(DeleteBehavior.Restrict);
+                
+                entity.HasIndex(e => new { e.SourceDocumentId, e.TargetDocumentId, e.RelationshipType }).IsUnique();
             });
         }
     }

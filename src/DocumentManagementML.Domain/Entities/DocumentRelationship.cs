@@ -28,17 +28,17 @@ namespace DocumentManagementML.Domain.Entities
         /// <summary>
         /// Gets or sets the unique identifier for the document relationship.
         /// </summary>
-        public int RelationshipId { get; set; }
+        public Guid RelationshipId { get; set; }
 
         /// <summary>
         /// Gets or sets the ID of the source document in the relationship.
         /// </summary>
-        public int SourceDocumentId { get; set; }
+        public Guid SourceDocumentId { get; set; }
 
         /// <summary>
         /// Gets or sets the ID of the target document in the relationship.
         /// </summary>
-        public int TargetDocumentId { get; set; }
+        public Guid TargetDocumentId { get; set; }
 
         /// <summary>
         /// Gets or sets the type of relationship (e.g., references, relates to, depends on).
@@ -58,7 +58,7 @@ namespace DocumentManagementML.Domain.Entities
         /// <summary>
         /// Gets or sets the ID of the user who created this relationship.
         /// </summary>
-        public int CreatedById { get; set; }
+        public Guid CreatedById { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether the relationship is active.

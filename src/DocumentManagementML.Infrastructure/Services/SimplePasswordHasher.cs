@@ -108,8 +108,8 @@ namespace DocumentManagementML.Infrastructure.Services
                     using (var sha256 = SHA256.Create())
                     {
                         var bytes = Encoding.UTF8.GetBytes(password);
-                        var hash = sha256.ComputeHash(bytes);
-                        var providedPasswordHash = Convert.ToBase64String(hash);
+                        var hashValue = sha256.ComputeHash(bytes);
+                        var providedPasswordHash = Convert.ToBase64String(hashValue);
                         return hashedPassword == providedPasswordHash;
                     }
                 }

@@ -58,6 +58,101 @@ namespace DocumentManagementML.Application.Services
             _logger = logger;
             _passwordHasher = passwordHasher;
         }
+        
+        /// <summary>
+        /// Creates a new user with the given DTO and password
+        /// </summary>
+        /// <param name="userDto">User DTO</param>
+        /// <param name="password">User password</param>
+        /// <returns>Created user entity</returns>
+        public async Task<User> CreateUserAsync(UserDto userDto, string password)
+        {
+            try
+            {
+                // Check if username is already taken
+                var existingUsername = await _userRepository.GetByUsernameAsync(userDto.Username);
+                if (existingUsername != null)
+                {
+                    throw new Application.Exceptions.ValidationException("Username is already taken");
+                }
+
+                // Check if email is already taken
+                var existingEmail = await _userRepository.GetByEmailAsync(userDto.Email);
+                if (existingEmail != null)
+                {
+                    throw new Application.Exceptions.ValidationException("Email is already taken");
+                }
+
+                _logger.LogInformation($"Creating user: {userDto.Username}");
+                
+                // Hash the password
+                var passwordHash = _passwordHasher.HashPassword(password);
+                
+                var user = new User
+                {
+                    Username = userDto.Username,
+                    Email = userDto.Email,
+                    PasswordHash = passwordHash,
+                    FirstName = userDto.FirstName,
+                    LastName = userDto.LastName,
+                    IsActive = userDto.IsActive,
+                    IsAdmin = userDto.IsAdmin,
+                    CreatedDate = DateTime.UtcNow,
+                    LastModifiedDate = DateTime.UtcNow
+                };
+                
+                var createdUser = await _userRepository.AddAsync(user);
+                
+                _logger.LogInformation($"User created with ID: {createdUser.UserId}");
+                return createdUser;
+            }
+            catch (Exception ex) when (!(ex is Application.Exceptions.ValidationException))
+            {
+                _logger.LogError(ex, $"Error creating user: {ex.Message}");
+                throw new ApplicationException($"Error creating user: {ex.Message}", ex);
+            }
+        }
+        
+        /// <summary>
+        /// Validates user credentials
+        /// </summary>
+        /// <param name="usernameOrEmail">Username or email</param>
+        /// <param name="password">Password</param>
+        /// <returns>User entity if validation succeeds, null otherwise</returns>
+        public async Task<User?> ValidateUserAsync(string usernameOrEmail, string password)
+        {
+            try
+            {
+                // Try to get user by username
+                var user = await _userRepository.GetByUsernameAsync(usernameOrEmail);
+                
+                // If not found by username, try by email
+                if (user == null)
+                {
+                    user = await _userRepository.GetByEmailAsync(usernameOrEmail);
+                }
+                
+                if (user == null || !user.IsActive)
+                {
+                    _logger.LogWarning($"Authentication failed: User {usernameOrEmail} not found or inactive");
+                    return null;
+                }
+                
+                if (!_passwordHasher.VerifyPassword(password, user.PasswordHash))
+                {
+                    _logger.LogWarning($"Authentication failed: Invalid password for user {usernameOrEmail}");
+                    return null;
+                }
+                
+                _logger.LogInformation($"User {user.Username} validated successfully");
+                return user;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error during validation for user {usernameOrEmail}");
+                return null;
+            }
+        }
 
         /// <summary>
         /// Gets a user by its identifier
@@ -392,12 +487,5 @@ namespace DocumentManagementML.Application.Services
         }
     }
 
-    /// <summary>
-    /// Interface for password hashing operations
-    /// </summary>
-    public interface IPasswordHasher
-    {
-        string HashPassword(string password);
-        bool VerifyPassword(string password, string passwordHash);
-    }
+    // IPasswordHasher interface is now in DocumentManagementML.Application.Interfaces namespace
 }

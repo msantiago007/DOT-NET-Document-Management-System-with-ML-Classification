@@ -100,6 +100,13 @@ namespace DocumentManagementML.Infrastructure.Repositories
         {
             try
             {
+                // Check if using in-memory database (which doesn't support transactions)
+                if (_dbContext.Database.ProviderName == "Microsoft.EntityFrameworkCore.InMemory")
+                {
+                    // Return a dummy transaction for in-memory database
+                    return new DummyTransaction();
+                }
+                
                 var efTransaction = await _dbContext.Database.BeginTransactionAsync();
                 return new DbContextTransaction(efTransaction);
             }
@@ -116,6 +123,31 @@ namespace DocumentManagementML.Infrastructure.Repositories
         public async Task<int> SaveChangesAsync()
         {
             return await _dbContext.SaveChangesAsync();
+        }
+        
+        /// <summary>
+        /// Commits the current transaction
+        /// </summary>
+        /// <returns>Completed task</returns>
+        public async Task CommitAsync()
+        {
+            try
+            {
+                // Check if using in-memory database (which doesn't support transactions)
+                if (_dbContext.Database.ProviderName != "Microsoft.EntityFrameworkCore.InMemory")
+                {
+                    await _dbContext.Database.CommitTransactionAsync();
+                }
+                // Just save changes for in-memory database
+                else
+                {
+                    await _dbContext.SaveChangesAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException("Failed to commit transaction", ex);
+            }
         }
 
         /// <summary>
@@ -209,6 +241,36 @@ namespace DocumentManagementML.Infrastructure.Repositories
             {
                 await _dbContext.DisposeAsync();
             }
+        }
+    }
+    
+    /// <summary>
+    /// Dummy transaction for in-memory database that doesn't support transactions
+    /// </summary>
+    internal class DummyTransaction : ITransaction
+    {
+        /// <summary>
+        /// Does nothing as in-memory database doesn't support transactions
+        /// </summary>
+        public Task CommitAsync()
+        {
+            return Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// Does nothing as in-memory database doesn't support transactions
+        /// </summary>
+        public Task RollbackAsync()
+        {
+            return Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// Does nothing as in-memory database doesn't support transactions
+        /// </summary>
+        public void Dispose()
+        {
+            // Nothing to dispose
         }
     }
 }

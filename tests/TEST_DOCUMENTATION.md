@@ -27,6 +27,24 @@ The project contains the following tests:
    - Tests the `DocumentTypeService` implementation using mocks
    - Verifies TypeName property handling during creation and updates
 
+2. **EnhancedDocumentTypeServiceTests**
+   - Located in: `tests/DocumentManagementML.UnitTests/Services/EnhancedDocumentTypeServiceTests.cs`
+   - Tests the enhanced document type service with transaction support
+   - Verifies proper transaction handling and validation
+   - Tests all CRUD operations with various scenarios
+
+3. **EnhancedDocumentServiceTests**
+   - Located in: `tests/DocumentManagementML.UnitTests/Services/EnhancedDocumentServiceTests.cs`
+   - Tests the enhanced document service with transaction support
+   - Verifies document management operations and validation
+   - Tests document metadata and file handling
+
+4. **EnhancedUserServiceTests**
+   - Located in: `tests/DocumentManagementML.UnitTests/Services/EnhancedUserServiceTests.cs`
+   - Tests the enhanced user service with comprehensive validation
+   - Verifies authentication, password management, and CRUD operations
+   - Tests transaction handling for critical operations
+
 ## Detailed Test Descriptions
 
 ### DocumentTypeTests
@@ -167,6 +185,53 @@ Failed!  - Failed:     1, Passed:     1, Skipped:     0, Total:     2, Duration:
    - Tests various API endpoints including authenticated and unauthenticated requests
    - Verifies authentication flow and basic controller functionality
 
+3. **MLControllerTests**
+   - Located in: `tests/DocumentManagementML.IntegrationTests/Controllers/MLControllerTests.cs`
+   - Tests machine learning endpoints including model metrics, classification, training, and evaluation
+   - Verifies authentication, authorization, and validation for ML operations
+   - Tests different error scenarios and edge cases with invalid inputs
+   - Validates role-based access for admin-only operations
+
+4. **EnhancedMLControllerTests**
+   - Located in: `tests/DocumentManagementML.IntegrationTests/Controllers/EnhancedMLControllerTests.cs`
+   - Tests the enhanced ML controller with standardized response format
+   - Validates proper response structure with consistent success/error patterns
+   - Tests authorization with regular and admin users
+   - Verifies error handling with invalid inputs
+
+5. **AuthControllerTests**
+   - Located in: `tests/DocumentManagementML.IntegrationTests/Controllers/AuthControllerTests.cs`
+   - Comprehensive tests for authentication and authorization
+   - Tests user registration, login, token refresh, and user information retrieval
+   - Validates token management, including refresh token functionality
+   - Tests password change operations and security enforcement
+   - Verifies proper error handling for invalid credentials and security violations
+
+6. **JwtAuthenticationTests**
+   - Located in: `tests/DocumentManagementML.IntegrationTests/Controllers/JwtAuthenticationTests.cs`
+   - Comprehensive tests specifically for JWT authentication flows
+   - Tests token generation, validation, and refresh workflows
+   - Verifies token expiration, invalidation, and security
+   - Tests password change functionality and its effect on authentication
+   - Validates refresh token functionality and single-use security
+
+7. **RoleBasedAuthorizationTests**
+   - Located in: `tests/DocumentManagementML.IntegrationTests/Controllers/RoleBasedAuthorizationTests.cs`
+   - Tests role-based authorization across different API endpoints
+   - Verifies that admin users can access admin-only resources
+   - Tests that regular users are denied access to admin-only endpoints
+   - Validates that unauthenticated users are rejected from protected endpoints
+   - Tests that expired or invalid tokens are properly rejected
+   - Verifies that token tampering is detected and rejected
+
+8. **DocumentsControllerTests** and **DocumentTypesControllerTests**
+   - Located in: `tests/DocumentManagementML.IntegrationTests/Controllers/DocumentsControllerTests.cs` and 
+     `tests/DocumentManagementML.IntegrationTests/Controllers/DocumentTypesControllerTests.cs`
+   - Tests CRUD operations for documents and document types
+   - Validates document classification, upload, and metadata handling
+   - Tests document type management and relationship with documents
+   - Verifies proper error handling and validation for operations
+
 ## Running Integration Tests
 
 You can run the integration tests using the .NET CLI:
@@ -187,6 +252,49 @@ cd /home/administrator/nodejs/DocumentManagementML
 dotnet test tests/DocumentManagementML.IntegrationTests --filter "FullyQualifiedName=DocumentManagementML.IntegrationTests.ApiIntegrationTests.Api_IsAccessible"
 ```
 
+## Transaction Testing
+
+We've implemented comprehensive transaction testing to ensure data integrity across the application:
+
+### Repository-Level Transaction Tests
+
+Located in: `tests/DocumentManagementML.UnitTests/Integration/TransactionHandlingTests.cs`
+
+These tests verify the basic functionality of transactions at the repository level:
+- `Transaction_CommittedAcrossRepositories_ChangesArePersisted`: Tests that changes are saved when a transaction is committed
+- `Transaction_RolledBackAcrossRepositories_ChangesAreDiscarded`: Tests that changes are discarded when a transaction is rolled back
+- `Transaction_ThrowsExceptionDuringOperation_ChangesAreRolledBack`: Tests that changes are rolled back when an exception occurs
+
+### UnitOfWork Transaction Tests
+
+Located in: `tests/DocumentManagementML.UnitTests/Repositories/UnitOfWorkTests.cs`
+
+These tests verify the UnitOfWork implementation handles transactions properly:
+- `UnitOfWork_ShouldManageTransaction_Successfully`: Tests transaction creation
+- `UnitOfWork_ShouldCommitTransaction_Successfully`: Tests transaction commit
+- `UnitOfWork_ShouldRollbackTransaction_Successfully`: Tests transaction rollback
+
+### Cross-Service Transaction Tests
+
+Located in: `tests/DocumentManagementML.UnitTests/Integration/CrossServiceTransactionTests.cs`
+
+These tests verify transaction handling across multiple services:
+- `CrossService_CreateDocumentTypeAndDocument_CommitsSuccessfully`: Tests successful transactions spanning multiple services
+- `CrossService_ServiceFailureAfterSuccess_RollsBackAllChanges`: Tests rollback when a service fails
+- `CrossService_ExplicitTransaction_RollsBackAllChanges`: Tests explicit transaction management
+- `CrossService_RelatedEntities_CreateAndDelete_MaintainsConsistency`: Tests referential integrity with transactions
+- `UnitOfWork_NestedTransactions_HandledCorrectly`: Tests nested transaction handling
+
+### API-Level Transaction Tests
+
+Located in: `tests/DocumentManagementML.IntegrationTests/Integration/TransactionHandlingTests.cs`
+
+These tests verify transaction handling at the API level:
+- `DocumentUploadWithMetadata_CommitsTransaction`: Tests document creation with metadata in a transaction
+- `DocumentUpdate_WithInvalidData_RollsBackTransaction`: Tests transaction rollback when validation fails
+- `CreateDocumentTypeWithDocuments_CommitsTransaction`: Tests creating a document type and documents in a transaction
+- `BulkDocumentOperations_HandlesTransactionsCorrectly`: Tests bulk operations with transaction handling
+
 ## Integration Test Environment
 
 Our integration tests use:
@@ -195,6 +303,26 @@ Our integration tests use:
 - In-memory database for persistence
 - Seeded test data (users, document types, documents)
 - Authentication helpers for testing secured endpoints
+- Transaction management for data integrity
+
+### Known Issues with WebApplicationFactory
+
+We are currently experiencing some challenges with the WebApplicationFactory setup in .NET 9.0:
+
+1. **ASP.NET Core 9.0 Compatibility**: The current WebApplicationFactory approach is having difficulty with the minimal API approach used in ASP.NET Core 9.0. This results in errors like "The entry point exited without ever building an IHost."
+
+2. **Workaround Attempts**:
+   - Implemented a custom MyAppProgram class that mimics the API's Program.cs structure
+   - Created a TestStartup class for configuring test services
+   - Added explicit CreateHostBuilder method to facilitate WebApplicationFactory initialization
+   - Tried various configuration approaches for the test host
+
+3. **Current Status**: Test cases are implemented but not running due to WebApplicationFactory setup issues. These issues need to be resolved before the integration tests can run successfully.
+
+4. **Next Steps**:
+   - Research better approaches for WebApplicationFactory with ASP.NET Core 9.0
+   - Consider using the actual Program class with direct configuration
+   - Explore Microsoft's recommended approaches for testing minimal APIs in .NET 9.0
 
 ## Adding New Tests
 

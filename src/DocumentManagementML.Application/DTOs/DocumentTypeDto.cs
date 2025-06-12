@@ -17,6 +17,9 @@ namespace DocumentManagementML.Application.DTOs
         public string? Description { get; set; }
         
         public bool IsActive { get; set; } = true;
+        
+        // Added for compatibility with tests
+        public string TypeName { get; set; } = string.Empty;
     }
     
     public class DocumentTypeCreateDto
@@ -29,6 +32,9 @@ namespace DocumentManagementML.Application.DTOs
         public string? Description { get; set; }
         
         public bool IsActive { get; set; } = true;
+        
+        // Added for compatibility with tests
+        public string? TypeName { get; set; }
     }
     
     public class DocumentTypeUpdateDto

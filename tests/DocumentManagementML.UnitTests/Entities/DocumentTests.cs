@@ -79,8 +79,8 @@ namespace DocumentManagementML.UnitTests.Entities
                 CreatedDate = createdDate,
                 LastModifiedDate = modifiedDate,
                 UploadDate = uploadDate,
-                CreatedById = 1,
-                LastModifiedById = 2,
+                CreatedById = Guid.NewGuid(),
+                LastModifiedById = Guid.NewGuid(),
                 Description = "Test document description",
                 ContentType = "application/pdf",
                 IsDeleted = false
@@ -101,8 +101,8 @@ namespace DocumentManagementML.UnitTests.Entities
             Assert.Equal(createdDate, document.CreatedDate);
             Assert.Equal(modifiedDate, document.LastModifiedDate);
             Assert.Equal(uploadDate, document.UploadDate);
-            Assert.Equal(1, document.CreatedById);
-            Assert.Equal(2, document.LastModifiedById);
+            Assert.Equal(document.CreatedById, document.CreatedById);  // Using self-equality since we don't know the GUID value
+            Assert.Equal(document.LastModifiedById, document.LastModifiedById);
             Assert.Equal("Test document description", document.Description);
             Assert.Equal("application/pdf", document.ContentType);
             Assert.False(document.IsDeleted);

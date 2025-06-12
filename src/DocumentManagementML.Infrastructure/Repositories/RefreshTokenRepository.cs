@@ -16,7 +16,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using DocumentManagementML.Domain.Entities;
 using DocumentManagementML.Domain.Repositories;
-using DocumentManagementML.Infrastructure.Data.Configurations;
+using DocumentManagementML.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
 namespace DocumentManagementML.Infrastructure.Repositories
@@ -42,7 +42,7 @@ namespace DocumentManagementML.Infrastructure.Repositories
         /// <returns>The refresh token entity or null</returns>
         public async Task<RefreshToken?> GetByTokenAsync(string refreshToken)
         {
-            return await DbContext.Set<RefreshToken>()
+            return await _dbContext.Set<RefreshToken>()
                 .Include(rt => rt.User)
                 .FirstOrDefaultAsync(rt => rt.Token == refreshToken);
         }
@@ -54,7 +54,7 @@ namespace DocumentManagementML.Infrastructure.Repositories
         /// <returns>Collection of refresh tokens</returns>
         public async Task<IEnumerable<RefreshToken>> GetAllForUserAsync(Guid userId)
         {
-            return await DbContext.Set<RefreshToken>()
+            return await _dbContext.Set<RefreshToken>()
                 .Where(rt => rt.UserId == userId)
                 .ToListAsync();
         }
@@ -66,7 +66,7 @@ namespace DocumentManagementML.Infrastructure.Repositories
         /// <returns>Collection of active refresh tokens</returns>
         public async Task<IEnumerable<RefreshToken>> GetActiveTokensForUserAsync(Guid userId)
         {
-            return await DbContext.Set<RefreshToken>()
+            return await _dbContext.Set<RefreshToken>()
                 .Where(rt => rt.UserId == userId && 
                              !rt.IsRevoked && 
                              !rt.IsUsed && 
@@ -117,7 +117,7 @@ namespace DocumentManagementML.Infrastructure.Repositories
         /// <returns>The number of tokens revoked</returns>
         public async Task<int> RevokeAllUserTokensAsync(Guid userId)
         {
-            var tokens = await DbContext.Set<RefreshToken>()
+            var tokens = await _dbContext.Set<RefreshToken>()
                 .Where(rt => rt.UserId == userId && 
                              !rt.IsRevoked && 
                              rt.ExpiresAt > DateTime.UtcNow)
@@ -128,8 +128,8 @@ namespace DocumentManagementML.Infrastructure.Repositories
                 token.IsRevoked = true;
             }
             
-            await DbContext.SaveChangesAsync();
-            return tokens.Count;
+            await _dbContext.SaveChangesAsync();
+            return tokens.Count();
         }
     }
 }

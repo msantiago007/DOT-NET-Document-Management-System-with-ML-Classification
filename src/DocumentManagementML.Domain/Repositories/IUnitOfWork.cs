@@ -30,6 +30,12 @@ namespace DocumentManagementML.Domain.Repositories
         /// </summary>
         /// <returns>Number of affected entities</returns>
         Task<int> SaveChangesAsync();
+        
+        /// <summary>
+        /// Commits the current transaction
+        /// </summary>
+        /// <returns>Completed task</returns>
+        Task CommitAsync();
     }
     
     /// <summary>

@@ -27,12 +27,12 @@ namespace DocumentManagementML.Domain.Entities
         /// <summary>
         /// Gets or sets the unique identifier for the document version.
         /// </summary>
-        public int VersionId { get; set; }
+        public Guid VersionId { get; set; }
 
         /// <summary>
         /// Gets or sets the ID of the document this version belongs to.
         /// </summary>
-        public int DocumentId { get; set; }
+        public Guid DocumentId { get; set; }
 
         /// <summary>
         /// Gets or sets the version number, which typically increments with each new version.
@@ -52,7 +52,7 @@ namespace DocumentManagementML.Domain.Entities
         /// <summary>
         /// Gets or sets the ID of the user who created this version.
         /// </summary>
-        public int CreatedById { get; set; }
+        public Guid CreatedById { get; set; }
 
         /// <summary>
         /// Gets or sets the content hash for integrity verification.

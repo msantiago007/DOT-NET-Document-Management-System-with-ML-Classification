@@ -12,6 +12,7 @@
 // -----------------------------------------------------------------------------
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DocumentManagementML.Domain.Entities
 {
@@ -73,6 +74,11 @@ namespace DocumentManagementML.Domain.Entities
         /// Gets or sets the hashed password for the user.
         /// </summary>
         public string PasswordHash { get; set; } = string.Empty;
+        
+        /// <summary>
+        /// Gets or sets the password salt used for hashing.
+        /// </summary>
+        public string PasswordSalt { get; set; } = string.Empty;
 
         /// <summary>
         /// Gets or sets the user's first name.
@@ -121,21 +127,25 @@ namespace DocumentManagementML.Domain.Entities
         /// <summary>
         /// Gets or sets the collection of documents created by this user.
         /// </summary>
+        [NotMapped]
         public ICollection<Document> CreatedDocuments { get; set; }
 
         /// <summary>
         /// Gets or sets the collection of documents last modified by this user.
         /// </summary>
+        [NotMapped]
         public ICollection<Document> ModifiedDocuments { get; set; }
 
         /// <summary>
         /// Gets or sets the collection of document versions created by this user.
         /// </summary>
+        [NotMapped]
         public ICollection<DocumentVersion> CreatedVersions { get; set; }
 
         /// <summary>
         /// Gets or sets the collection of document relationships created by this user.
         /// </summary>
+        [NotMapped]
         public ICollection<DocumentRelationship> CreatedRelationships { get; set; }
 
         /// <summary>
